@@ -11,29 +11,34 @@ import { RocketLaunchIcon, GlobeAltIcon } from "@heroicons/react/24/outline";
 
 const DEVELOPERS = [
   {
-    name: 'Jose "Madman" Domingo',
+    name: 'Jose Virgilio Domingo',
     image: "/Madman.jpg",
-    role: "Frontend Developer",
+    role: "Project Manager/Full Stack Developer",
   },
   {
-    name: 'Jose "Madman" Domingo',
-    image: "/Madman.jpg",
+    name: 'Miles Joseph Bacay',
+    image: "/Bacay.png",
     role: "Backend Developer",
   },
   {
-    name: 'Jose "Madman" Domingo',
-    image: "/Madman.jpg",
+    name: 'Charles Hendrick Garcia',
+    image: "/Garcia.png",
     role: "UI/UX Designer",
   },
   {
-    name: 'Jose "Madman" Domingo',
-    image: "/Madman.jpg",
-    role: "Product Manager",
+    name: 'Federico Cadorna',
+    image: "/Cadorna.png",
+    role: "Quality Analyst I",
   },
   {
-    name: 'Jose "Madman" Domingo',
-    image: "/Madman.jpg",
-    role: "QA/Tester",
+    name: 'Carl Jason Baon',
+    image: "/Baon.png",
+    role: "Quality Analyst II",
+  },
+  {
+    name: 'Luiz Valentine Cristobal',
+    image: "/Cristobal.png",
+    role: "Content Strategist",
   },
 ];
 
@@ -45,7 +50,7 @@ const AboutUsPage = () => {
         <header className="w-full text-center">
           <Typography variant="h2">About Us</Typography>
           <Typography variant="lead">
-            One site for all your college needs.
+            One-Stop site for all your college needs.
           </Typography>
         </header>
         <section className="grid md:grid-cols-2 gap-5">
@@ -60,12 +65,11 @@ const AboutUsPage = () => {
                 Our mission
               </Typography>
               <Typography variant="paragraph">
-                Integer fermentum, neque in blandit elementum, elit dui congue
-                nibh, eget luctus erat dui ut nulla. Aenean felis sem, faucibus
-                nec orci a, malesuada sodales risus. Class aptent taciti
-                sociosqu ad litora torquent per conubia nostra, per inceptos
-                himenaeos. Suspendisse tincidunt a nisl sed fermentum.
-                Vestibulum feugiat lacus eu diam.
+                To empower the entrepreneurial spirit within the Technological University of the Philippines (TUP) 
+                by providing a secure, innovative, and user-friendly platform for student-run businesses and 
+                campus-based entrepreneurs. We aim to foster a collaborative marketplace that promotes growth, transparency, and 
+                accessibility, enabling our users to thrive in their business ventures while contributing to the university 
+                community’s economic and social development.
               </Typography>
             </CardBody>
           </Card>
@@ -80,12 +84,12 @@ const AboutUsPage = () => {
                 Our vision
               </Typography>
               <Typography variant="paragraph">
-                Fusce justo dolor, pellentesque a blandit a, ullamcorper nec
-                arcu. Mauris aliquam molestie dolor id tincidunt. In hac
-                habitasse platea dictumst. Cras eu consectetur tellus. Sed et
-                risus egestas, fermentum lectus et, tincidunt velit. Integer
-                tempor est eu libero vehicula, in elementum velit gravida. Proin
-                sodales magna a diam interdum.
+                To become the leading e-commerce platform in academic institutions, 
+                setting the standard for innovation and entrepreneurial excellence. 
+                We strive to create a dynamic and sustainable ecosystem that connects students, faculty, and 
+                campus entrepreneurs, driving economic empowerment and fostering a culture of entrepreneurship 
+                within TUP-Manila. BUZZAR envisions a future where every student entrepreneur has the tools and 
+                support needed to succeed in a competitive marketplace.
               </Typography>
             </CardBody>
           </Card>
@@ -96,7 +100,8 @@ const AboutUsPage = () => {
           </Typography>
           <article className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {DEVELOPERS.map((developer) => (
-              <Card key={developer.name} className="w-full">
+              <div className="flex justify-center">
+              <Card key={developer.name} className="w-72">
                 <CardHeader floated={false}>
                   <img
                     className="object-cover object-top w-full h-[150px]"
@@ -113,6 +118,7 @@ const AboutUsPage = () => {
                   </Typography>
                 </CardBody>
               </Card>
+              </div>
             ))}
           </article>
         </section>
