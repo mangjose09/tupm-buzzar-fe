@@ -19,7 +19,7 @@ const AuthNavBar = () => {
           <Link to="/">
             <img
               className="h-10 w-auto object-cover p-0"
-              src="/BUZZAR_BRAND_NAME.png"
+              src="/LONG-TEXT-NO-BG.png"
               alt="buzzar branding"
             />
           </Link>
