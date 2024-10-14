@@ -1,0 +1,467 @@
+import { useState } from "react";
+import {
+  Stepper,
+  Step,
+  Button,
+  Typography,
+  Card,
+  CardBody,
+  Input,
+  Select,
+  Option,
+} from "@material-tailwind/react";
+import {
+  CogIcon,
+  UserIcon,
+  CheckIcon,
+  EyeIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
+import { useForm } from "react-hook-form";
+import buzzar_api from "../../../config/api-config";
+
+const CustomerRegForm = ({ emailSubmitted, backToPhaseOne, onSuccess }) => {
+  const [activeStep, setActiveStep] = useState(0);
+  const [isLastStep, setIsLastStep] = useState(false);
+  const [isFirstStep, setIsFirstStep] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [departmentError, setDepartmentError] = useState("");
+
+  // Department options, add more departments as needed
+  const departments = [
+    { name: "College of Architecture and Fine Arts", value: "CAFA" },
+    { name: "College of Engineering", value: "COE" },
+    { name: "College of Industrial Education", value: "CIE" },
+    { name: "College of Industrial Technology", value: "CIT" },
+    { name: "College of Liberal Arts", value: "CLA" },
+    { name: "College of Science", value: "COS" },
+  ];
+
+  // Initialize useForm
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    trigger,
+    watch, // Added watch to observe form values
+  } = useForm({
+    mode: "onBlur",
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      contactNumber: "",
+    },
+  });
+
+  // Use watch to get form data
+  const formData = watch();
+
+  const registerCustomer = async (data) => {
+    console.log("All form data:", data);
+    console.log("Selected Department:", selectedDepartment);
+
+    if (activeStep === 2) {
+      const finalData = {
+        email: emailSubmitted,
+        password: data.password,
+        first_name: data.firstName,
+        middle_name: data.middleName,
+        last_name: data.lastName,
+        contact_num: data.contactNumber,
+        user_role: "Customer",
+        user_dept: selectedDepartment,
+        // Add other fields as needed
+      };
+
+      console.log("Submit data to API:", finalData);
+
+      try {
+        // Make the API request to /api/register
+        const response = await buzzar_api.post("/register/", finalData);
+
+        // If the request is successful, log or handle success response
+        console.log("Registration successful:", response.data);
+        onSuccess(); // Call the onSuccess callback function when the registration is successful
+        setIsLastStep(true); // Set the last step flag to true
+      } catch (error) {
+        if (error.response) {
+          // Extract the first error message from the response
+          const errorMessage = Object.keys(error.response.data)
+            .map((key) => `${key}: ${error.response.data[key].join(", ")}`)
+            .join("\n");
+
+          // Add a custom message before the detailed errors
+          const alertMessage = `There's an error on the following:\n${errorMessage}`;
+
+          alert(alertMessage); // Display the error message in an alert
+          console.error("Error response:", error.response.data);
+          backToPhaseOne(false); // Go back to email validation
+        } else if (error.request) {
+          alert("No response from the server. Please try again.");
+          console.error("No response from the server:", error.request);
+          backToPhaseOne(false); // Go back to email validation
+        } else {
+          alert("An error occurred. Please try again.");
+          console.error("Error:", error.message);
+          backToPhaseOne(false); // Go back to email validation
+        }
+      }
+    } else {
+      handleNext(); // Proceed to the next step if it's not the last one
+    }
+  };
+
+  const handleNext = async () => {
+    const isStepValid = await trigger(); // Check if current step fields are valid
+
+    // Validate department selection only on Step 1 (Profile Information)
+    if (activeStep === 1 && !selectedDepartment) {
+      setDepartmentError("Please select a department.");
+      return; // Prevent moving to the next step
+    }
+
+    if (isStepValid) {
+      setActiveStep((cur) => cur + 1);
+      setDepartmentError(""); // Clear error when valid
+    }
+  };
+
+  const handlePrev = () => {
+    if (isFirstStep) {
+      backToPhaseOne(false); // Go back to email validation
+    } else {
+      setActiveStep((cur) => cur - 1);
+    }
+  };
+
+  // Render form content for each step
+  const renderFormContent = () => {
+    switch (activeStep) {
+      case 0:
+        return (
+          <>
+            <Typography variant="h5" className="mb-4">
+              Account Details
+            </Typography>
+            <div className="grid gap-2 grid-cols-2">
+              <span className="col-span-2">
+                <Input
+                  label="Email"
+                  type="text"
+                  value={emailSubmitted}
+                  placeholder="Enter your email"
+                  disabled
+                />
+              </span>
+              <span className="col-span-2 sm:col-span-1">
+                <Input
+                  label="Password"
+                  type="password"
+                  placeholder="Enter password"
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 characters long",
+                    },
+                    validate: (value) => {
+                      const errors = [];
+
+                      if (!/[a-z]/.test(value)) {
+                        errors.push("one lowercase letter");
+                      }
+                      if (!/[A-Z]/.test(value)) {
+                        errors.push("one uppercase letter");
+                      }
+                      if (!/\d/.test(value)) {
+                        errors.push("one number");
+                      }
+
+                      if (errors.length > 0) {
+                        return `Password must contain at least ${errors.join(
+                          ", "
+                        )}.`;
+                      }
+
+                      return true; // No errors, validation passed
+                    },
+                  })}
+                  error={errors.password}
+                />
+
+                {errors.password ? (
+                  <Typography color="red" variant="small">
+                    {errors.password.message}
+                  </Typography>
+                ) : (
+                  <Typography
+                    variant="small"
+                    color="gray"
+                    className="mt-2 flex sm:items-center gap-x-2 font-normal"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="-mt-px h-4 w-4"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Use at least 8 characters, one uppercase, one lowercase and
+                    one number.
+                  </Typography>
+                )}
+              </span>
+              <span className="col-span-2 sm:col-span-1">
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  placeholder="Confirm your password"
+                  {...register("confirmPassword", {
+                    required: "Please confirm your password",
+                    validate: (value) => {
+                      if (value !== watch("password")) {
+                        return "Passwords do not match.";
+                      }
+                      return true; // No errors, validation passed
+                    },
+                  })}
+                  error={errors.confirmPassword}
+                />
+                {errors.confirmPassword && (
+                  <Typography color="red" variant="small">
+                    {errors.confirmPassword.message}
+                  </Typography>
+                )}
+              </span>
+            </div>
+          </>
+        );
+      case 1:
+        return (
+          <>
+            <Typography variant="h5" className="mb-4">
+              Personal Details
+            </Typography>
+            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+              <div>
+                <Input
+                  label="First Name"
+                  type="text"
+                  placeholder="Enter your first name"
+                  {...register("firstName", {
+                    required: "First name is required",
+                  })}
+                  error={errors.firstName}
+                />
+                {errors.firstName && (
+                  <Typography color="red" variant="small">
+                    {errors.firstName.message}
+                  </Typography>
+                )}
+              </div>
+              <div>
+                <Input
+                  label="Middle Name (Optional)"
+                  type="text"
+                  placeholder="Enter your middle name"
+                  {...register("middleName")}
+                />
+              </div>
+              <div className="col-span-1 lg:col-span-2">
+                <Input
+                  label="Last Name"
+                  type="text"
+                  placeholder="Enter your last name"
+                  {...register("lastName", {
+                    required: "Last name is required",
+                  })}
+                  error={errors.lastName}
+                />
+                {errors.lastName && (
+                  <Typography color="red" variant="small">
+                    {errors.lastName.message}
+                  </Typography>
+                )}
+              </div>
+              <div className="w-full">
+                <Input
+                  label="Contact Number"
+                  placeholder="e.g., +639987654321"
+                  {...register("contactNumber", {
+                    required: "Contact number is required",
+                    pattern: {
+                      value: /^\+63\d{10}$/,
+                      message:
+                        "Contact number must be in the format +639XXXXXXXXX",
+                    },
+                  })}
+                  error={errors.contactNumber}
+                />
+                {errors.contactNumber && (
+                  <Typography color="red" variant="small">
+                    {errors.contactNumber.message}
+                  </Typography>
+                )}
+              </div>
+              <div className="w-full">
+                <Select
+                  label="Select Department"
+                  value={selectedDepartment}
+                  onChange={(e) => setSelectedDepartment(e)}
+                  error={departmentError}
+                >
+                  {departments.map((department) => (
+                    <Option key={department.value} value={department.value}>
+                      {department.name}
+                    </Option>
+                  ))}
+                </Select>
+                {departmentError && (
+                  <Typography color="red" variant="small">
+                    {departmentError}
+                  </Typography>
+                )}
+              </div>
+            </div>
+          </>
+        );
+      case 2:
+        // Step 3: Confirm Information
+        return (
+          <>
+            <div>
+              <Typography variant="h5">Confirm Details</Typography>
+              <Typography variant="small">
+                Please review your details before submitting.
+              </Typography>
+            </div>
+            {/* Display form data */}
+            <div className="grid md:grid-cols-2 mt-4 gap-y-4 ">
+              <div>
+                <Typography variant="h6">Account Information</Typography>
+                <Typography>
+                  <strong>Email:</strong> {emailSubmitted}
+                </Typography>
+                <Typography>
+                  <strong>Password:</strong> ******** (Hidden for security)
+                </Typography>
+              </div>
+
+              <div>
+                <Typography variant="h6">Personal Information</Typography>
+                <Typography>
+                  <strong>First Name:</strong> {formData.firstName}
+                </Typography>
+                <Typography>
+                  <strong>Last Name:</strong> {formData.lastName}
+                </Typography>
+                <Typography>
+                  <strong>Contact Number:</strong> {formData.contactNumber}
+                </Typography>
+                <Typography>
+                  <strong>Department:</strong> {selectedDepartment}
+                </Typography>
+              </div>
+            </div>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="w-full lg:px-24 lg:py-4 z-0">
+      <Stepper
+        activeStep={activeStep}
+        isLastStep={(value) => setIsLastStep(value)}
+        isFirstStep={(value) => setIsFirstStep(value)}
+        activeLineClassName="bg-[#F6962E]"
+      >
+        <Step activeClassName="bg-[#F6962E]" completedClassName="bg-[#F6962E]">
+          <UserIcon className="h-5 w-5" />
+          <div className="hidden sm:inline-block absolute -bottom-[4.5rem] w-max text-center">
+            <Typography
+              variant="h6"
+              color={activeStep === 0 ? "blue-gray" : "gray"}
+            >
+              Step 1
+            </Typography>
+            <Typography
+              color={activeStep === 0 ? "blue-gray" : "gray"}
+              className="font-normal"
+            >
+              Account Information
+            </Typography>
+          </div>
+        </Step>
+        <Step activeClassName="bg-[#F6962E]" completedClassName="bg-[#F6962E]">
+          <CogIcon className="h-5 w-5" />
+          <div className="hidden sm:inline-block absolute -bottom-[4.5rem] w-max text-center">
+            <Typography
+              variant="h6"
+              color={activeStep === 1 ? "blue-gray" : "gray"}
+            >
+              Step 2
+            </Typography>
+            <Typography
+              color={activeStep === 1 ? "blue-gray" : "gray"}
+              className="font-normal"
+            >
+              Profile Information
+            </Typography>
+          </div>
+        </Step>
+        <Step activeClassName="bg-[#F6962E]" completedClassName="bg-[#F6962E]">
+          <CheckIcon className="h-5 w-5" />
+          <div className="hidden sm:inline-block absolute -bottom-[4.5rem] w-max text-center">
+            <Typography
+              variant="h6"
+              color={activeStep === 2 ? "blue-gray" : "gray"}
+            >
+              Step 3
+            </Typography>
+            <Typography
+              color={activeStep === 2 ? "blue-gray" : "gray"}
+              className="font-normal"
+            >
+              Confirm Information
+            </Typography>
+          </div>
+        </Step>
+      </Stepper>
+
+      <div className="flex mt-8 sm:mt-28 justify-center">
+        <Card className="w-full sm:w-[75%] p-0 sm:p-6 border border-gray-300">
+          <CardBody>
+            <form onSubmit={handleSubmit(registerCustomer)}>
+              {renderFormContent()}
+              <div className="mt-8 flex justify-between">
+                <Button onClick={handlePrev} className="bg-[#F6962E]">
+                  Prev
+                </Button>
+                <Button type="submit" className="bg-[#F6962E]">
+                  {activeStep === 2 ? "Submit" : "Next"}
+                </Button>
+              </div>
+            </form>
+          </CardBody>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export { CustomerRegForm };
