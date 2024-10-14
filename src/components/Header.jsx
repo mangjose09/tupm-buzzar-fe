@@ -9,19 +9,18 @@ import {
 import { Link } from "react-router-dom";
 import { ShoppingCartIcon, Bars2Icon } from "@heroicons/react/24/outline";
 
-
 const Header = () => {
   return (
     <Navbar className="mx-auto max-w-full py-2 px-4 lg:px-8 lg:py-4 sticky top-0 z-10 rounded-none">
       <div className="flex justify-between items-center">
         {/* Left Section - Logo */}
-        <Typography
-          as="a"
-          href="/"
-          className="mr-4 cursor-pointer py-1.5 text-2xl font-bold text-[#F8B34B]"
-        >
-          Buzzar
-        </Typography>
+        <Link to="/">
+          <img
+            className="h-10 w-auto object-cover p-0"
+            src="/BUZZAR_BRAND_NAME.png"
+            alt="buzzar branding"
+          />
+        </Link>
 
         {/* Center Section - Search Bar */}
         <div className="hidden lg:flex flex-1 items-center mx-4">
@@ -61,13 +60,13 @@ const Header = () => {
           >
             About Us
           </Typography>
-          <Typography
+          {/* <Typography
             as="a"
             href="#"
             className="hidden lg:inline-block text-black"
           >
             Contact
-          </Typography>
+          </Typography> */}
 
           {/* Cart Icon with Badge */}
 

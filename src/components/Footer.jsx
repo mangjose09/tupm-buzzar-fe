@@ -15,8 +15,8 @@ const SITEMAP = [
   },
   {
     title: "Services",
-    url: ["", "", ""],
-    links: ["Privacy Policy", "Terms and Conditions", "Product Policy"],
+    url: ["/privacy-policy", "/terms-and-conditions"],
+    links: ["Privacy Policy", "Terms and Conditions"],
   },
 ];
 
@@ -50,7 +50,7 @@ const Footer = () => {
               href="tel:+1234567890"
               variant="small"
               color="white"
-              className="text-left font-normal transition-colors hover:text-blue-gray-800 "
+              className="text-left font-normal duration-300 transition-colors hover:text-blue-gray-800 "
             >
               <span className="font-bold text-blue-gray-800 opacity-80">
                 Call us:
@@ -62,7 +62,7 @@ const Footer = () => {
               href="mailto:info@buzzar.com"
               variant="small"
               color="white"
-              className="text-left font-normal  transition-colors hover:text-blue-gray-800"
+              className="text-left font-normal  duration-300 transition-colors hover:text-blue-gray-800"
             >
               <span className="font-bold text-blue-gray-800 opacity-80">
                 Email us:
@@ -89,7 +89,7 @@ const Footer = () => {
                   >
                     <a
                       href={url[index] ? `${BASE_URL}${url[index]}` : "#"}
-                      className="inline-block py-1 pr-2 transition-transform hover:scale-110 hover:text-blue-gray-800"
+                      className="inline-block py-1 pr-2 duration-300 transition-transform hover:scale-110 hover:text-blue-gray-800"
                       onClick={(e) => {
                         if (currentLocation.pathname === url[index]) {
                           e.preventDefault(); // Prevent redirect if URL is the same
@@ -116,7 +116,7 @@ const Footer = () => {
             <Typography
               as="a"
               href="#"
-              className="opacity-80 transition-colors hover:text-blue-gray-800 hover:opacity-100"
+              className="opacity-80 duration-300 transition-colors hover:text-blue-gray-800 hover:opacity-100"
             >
               <svg
                 className="h-5 w-5"
@@ -130,7 +130,7 @@ const Footer = () => {
             <Typography
               as="a"
               href="#"
-              className="opacity-80 transition-colors hover:text-blue-gray-800 hover:opacity-100"
+              className="opacity-80 duration-300 transition-colors hover:text-blue-gray-800 hover:opacity-100"
             >
               <svg
                 className="h-5 w-5"
@@ -144,7 +144,7 @@ const Footer = () => {
             <Typography
               as="a"
               href="#"
-              className="opacity-80 transition-colors hover:text-blue-gray-800 hover:opacity-100"
+              className="opacity-80 duration-300 transition-colors hover:text-blue-gray-800 hover:opacity-100"
             >
               <svg
                 className="h-5 w-5"
