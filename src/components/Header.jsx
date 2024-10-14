@@ -79,6 +79,14 @@ const Header = () => {
           <IconButton variant="text" className="lg:hidden">
             <Bars2Icon className="h-6 w-6 text-blue-500" />
           </IconButton>
+
+          <Typography
+            as="a"
+            href="#"
+            className="hidden lg:inline-block text-black"
+          >
+            Login / Register
+          </Typography>
         </div>
       </div>
     </Navbar>
