@@ -6,7 +6,9 @@ import {
   Input,
   Badge,
 } from "@material-tailwind/react";
+import { Link } from "react-router-dom";
 import { ShoppingCartIcon, Bars2Icon } from "@heroicons/react/24/outline";
+
 
 const Header = () => {
   return (
@@ -79,13 +81,25 @@ const Header = () => {
           <IconButton variant="text" className="lg:hidden">
             <Bars2Icon className="h-6 w-6 text-blue-500" />
           </IconButton>
-
           <Typography
-            as="a"
-            href="#"
-            className="hidden lg:inline-block text-black"
+            as="text"
+            className="hidden lg:inline-block text-black space-x-1"
           >
-            Login / Register
+            <Link
+              to="/customer/login"
+              state={{ headerTitle: "Customer Login" }}
+              className="hover:underline"
+            >
+              Login
+            </Link>
+            <span>/</span>
+            <Link
+              to="/customer/register"
+              state={{ headerTitle: "Customer Registration" }}
+              className="hover:underline"
+            >
+              Register
+            </Link>
           </Typography>
         </div>
       </div>
