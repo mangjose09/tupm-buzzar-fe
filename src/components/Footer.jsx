@@ -1,24 +1,32 @@
 import React from "react";
 import { Typography } from "@material-tailwind/react";
+import { useLocation } from "react-router-dom"; // For accessing current URL
 
 const SITEMAP = [
   {
     title: "Information",
-    links: ["About Us", "Mission", "Vision"],
+    url: ["", "", "", "/vendor/login"],
+    links: ["About Us", "Mission", "Vision", "Vendor Center"],
   },
   {
     title: "Help Center",
+    url: ["", "", ""],
     links: ["FAQs", "Vendor Assistance", "Customer Assistance"],
   },
   {
     title: "Services",
+    url: ["", "", ""],
     links: ["Privacy Policy", "Terms and Conditions", "Product Policy"],
   },
 ];
 
+const BASE_URL = window.location.origin;
+
 const currentYear = new Date().getFullYear();
 
 const Footer = () => {
+  const currentLocation = useLocation();
+
   return (
     <footer className="relative w-full bg-[#FFB25A] z-0">
       <div className="mx-auto w-full max-w-7xl px-8">
@@ -62,7 +70,7 @@ const Footer = () => {
               info@buzzar.com
             </Typography>
           </div>
-          {SITEMAP.map(({ title, links }, key) => (
+          {SITEMAP.map(({ title, links, url }, key) => (
             <div key={key} className="w-full">
               <Typography
                 variant="small"
@@ -72,16 +80,21 @@ const Footer = () => {
                 {title}
               </Typography>
               <ul className="space-y-1">
-                {links.map((link, key) => (
+                {links.map((link, index) => (
                   <Typography
-                    key={key}
+                    key={index}
                     as="li"
                     color="white"
                     className="font-normal opacity-90"
                   >
                     <a
-                      href="#"
+                      href={url[index] ? `${BASE_URL}${url[index]}` : "#"}
                       className="inline-block py-1 pr-2 transition-transform hover:scale-110 hover:text-blue-gray-800"
+                      onClick={(e) => {
+                        if (currentLocation.pathname === url[index]) {
+                          e.preventDefault(); // Prevent redirect if URL is the same
+                        }
+                      }}
                     >
                       {link}
                     </a>
