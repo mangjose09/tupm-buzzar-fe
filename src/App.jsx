@@ -8,6 +8,8 @@ import AboutUsPage from "./pages/AboutUsPage";
 import FAQPage from "./pages/FAQPage";
 import VendorAsst from "./pages/vendor/VendorAsst";
 import CustomerAsst from "./pages/customer/CustomerAsst";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsAndConditionPage from "./pages/TermsAndConditionPage";
 export default function App() {
   return (
     <BrowserRouter>
@@ -17,7 +19,11 @@ export default function App() {
         <Route path="/faqs" element={<FAQPage />} />
         <Route path="/vendor-assistance" element={<VendorAsst />} />
         <Route path="/customer-assistance" element={<CustomerAsst />} />
-
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route
+          path="/terms-and-conditions"
+          element={<TermsAndConditionPage />}
+        />
 
         {/* Customer Paths */}
         <Route path="/customer/login" element={<CustomerLogin />} />

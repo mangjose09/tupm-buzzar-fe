@@ -1,6 +1,12 @@
 import React from "react";
-import { Navbar, Typography, Button } from "@material-tailwind/react";
+import {
+  Navbar,
+  Typography,
+  Button,
+  IconButton,
+} from "@material-tailwind/react";
 import { Link, useLocation } from "react-router-dom";
+import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 
 const AuthNavBar = () => {
   const location = useLocation();
@@ -11,23 +17,23 @@ const AuthNavBar = () => {
       <div className="flex items-center justify-between text-blue-gray-900">
         <div className="flex flex-row justify-center items-center">
           <Link to="/">
-            <Typography
-              as="a"
-              href="#"
-              className="w-full mr-4 cursor-pointer py-1.5  text-lg md:text-2xl font-bold text-[#F8B34B]"
-            >
-              Buzzar
-            </Typography>
+            <img
+              className="h-10 w-auto object-cover p-0"
+              src="/BUZZAR_BRAND_NAME.png"
+              alt="buzzar branding"
+            />
           </Link>
           <Typography
             variant="h5"
-            className="text-black  py-1.5 text-base md:text-lg"
+            className="text-black ml-2  py-1.5 text-base md:text-lg"
           >
             {headerTitle}
           </Typography>
         </div>
-
-        <Button variant="text" size="sm" className="">
+        <IconButton variant="text" className="inline-block md:hidden">
+          <QuestionMarkCircleIcon className="h-6 w-6" />
+        </IconButton>
+        <Button variant="text" size="sm" className="hidden md:inline-block">
           <span>Need Help?</span>
         </Button>
       </div>
