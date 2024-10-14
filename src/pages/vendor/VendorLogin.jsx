@@ -35,17 +35,17 @@ const VendorLogin = () => {
   const CARDINFO = [
     {
       icon: "https://placehold.co/96x96/png",
-      title: "Card 1",
+      title: "Non-profit Platform",
       desc: "This is the card 1",
     },
     {
       icon: "https://placehold.co/96x96/png",
-      title: "Card 2",
+      title: "Secure and Safe",
       desc: "This is the card 2",
     },
     {
       icon: "https://placehold.co/96x96/png",
-      title: "Card 3",
+      title: "One-stop Shop",
       desc: "This is the card 3",
     },
   ];
@@ -77,6 +77,7 @@ const VendorLogin = () => {
         <article className="grid grid-cols-1 lg:grid-cols-2 px-6 py-5 md:px-24 md:py-10  gap-x-4 md:items-center">
           <BrandImage />
           <Card className="w-full border outline outline-[#F8B34B] outline-1">
+            {/* <Card className="shadow-2xl w-full outline outline-[#F8B34B] outline-1"> */}
             <CardHeader
               variant="gradient"
               floated={false}
@@ -188,7 +189,7 @@ const VendorLogin = () => {
           ))}
         </article>
 
-        <article className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-6 py-5 md:px-24 md:py-10 gap-3">
+        <article className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-6 py-5 md:px-24 md:py-20 gap-3">
           <Typography
             variant="h3"
             className="sm:col-span-2 lg:col-span-4 text-center font-semibold"

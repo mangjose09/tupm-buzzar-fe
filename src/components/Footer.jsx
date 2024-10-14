@@ -4,13 +4,13 @@ import { useLocation } from "react-router-dom"; // For accessing current URL
 
 const SITEMAP = [
   {
-    title: "Information",
-    url: ["", "", "", "/vendor/login"],
-    links: ["About Us", "Mission", "Vision", "Vendor Center"],
+    title: "GENERAL",
+    url: ["/about-us", "/vendor/login"],
+    links: ["About Us", "Vendor Center"],
   },
   {
     title: "Help Center",
-    url: ["", "", ""],
+    url: ["/faqs", "/vendor-assistance", "/customer-assistance"],
     links: ["FAQs", "Vendor Assistance", "Customer Assistance"],
   },
   {
