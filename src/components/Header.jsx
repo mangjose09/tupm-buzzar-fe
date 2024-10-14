@@ -17,7 +17,7 @@ const Header = () => {
         {/* Left Section - Logo */}
         <Typography
           as="a"
-          href="#"
+          href="/"
           className="mr-4 cursor-pointer py-1.5 text-2xl font-bold text-[#F8B34B]"
         >
           Buzzar
@@ -42,7 +42,7 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <Typography
             as="a"
-            href="#"
+            href="/"
             className="hidden lg:inline-block text-black"
           >
             Home
@@ -56,7 +56,7 @@ const Header = () => {
           </Typography>
           <Typography
             as="a"
-            href="#"
+            href="/about-us"
             className="hidden lg:inline-block text-black"
           >
             About Us
