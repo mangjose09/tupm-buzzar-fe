@@ -1,5 +1,6 @@
 import Hero from "../components/landing-page/Hero";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 import FeaturedStores from "./../components/landing-page/FeaturedStores";
 
 export default function LandingPage() {
@@ -10,6 +11,7 @@ export default function LandingPage() {
         <Hero />
         <FeaturedStores />
       </div>
+      <Footer />
     </>
   );
 }
