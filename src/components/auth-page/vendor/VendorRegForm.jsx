@@ -21,7 +21,7 @@ import {
 import { useForm } from "react-hook-form";
 import buzzar_api from "../../../config/api-config";
 
-const CustomerRegForm = ({ emailSubmitted, backToPhaseOne, onSuccess }) => {
+const VendorRegForm = ({ emailSubmitted, backToPhaseOne, onSuccess }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [isLastStep, setIsLastStep] = useState(false);
   const [isFirstStep, setIsFirstStep] = useState(false);
@@ -81,7 +81,7 @@ const CustomerRegForm = ({ emailSubmitted, backToPhaseOne, onSuccess }) => {
         middle_name: data.middleName,
         last_name: data.lastName,
         contact_num: data.contactNumber,
-        user_role: "Customer",
+        user_role: "Vendor",
         user_dept: selectedDepartment,
         // Add other fields as needed
       };
@@ -126,12 +126,6 @@ const CustomerRegForm = ({ emailSubmitted, backToPhaseOne, onSuccess }) => {
 
   const handleNext = async () => {
     const isStepValid = await trigger(); // Check if current step fields are valid
-
-    // Validate department selection only on Step 1 (Profile Information)
-    if (activeStep === 1 && !selectedDepartment) {
-      setDepartmentError("Please select a department.");
-      return; // Prevent moving to the next step
-    }
 
     if (isStepValid) {
       setActiveStep((cur) => cur + 1);
@@ -354,7 +348,7 @@ const CustomerRegForm = ({ emailSubmitted, backToPhaseOne, onSuccess }) => {
               </div>
               <div className="w-full">
                 <Select
-                  label="Select Department"
+                  label="Select Department (Optional)"
                   value={selectedDepartment}
                   onChange={(e) => setSelectedDepartment(e)}
                   error={departmentError ? true : false}
@@ -531,4 +525,4 @@ const CustomerRegForm = ({ emailSubmitted, backToPhaseOne, onSuccess }) => {
   );
 };
 
-export { CustomerRegForm };
+export { VendorRegForm };
