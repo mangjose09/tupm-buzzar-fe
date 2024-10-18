@@ -20,10 +20,10 @@ const Hero = () => {
   ];
 
   return (
-    <section className="grid grid-cols-3 gap-4 h-[400px]">
-      {/* Carousel (left column) */}
-      <div className="col-span-2">
-        <Carousel className="h-full rounded-xl">
+    <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-auto lg:h-[400px] p-4">
+      {/* Carousel (left column on larger screens) */}
+      <div className="lg:col-span-2">
+        <Carousel className="h-[200px] lg:h-full rounded-xl">
           {/* Slide 1 */}
           <div className="relative h-full w-full">
             <img
@@ -33,39 +33,31 @@ const Hero = () => {
             />
           </div>
 
-          {/* You can uncomment the slides if you need more */}
+          {/* Add more slides if needed */}
           {/* <div className="relative h-full w-full">
             <img
               src="https://via.placeholder.com/1600x500?text=Product+2"
               alt="Product 2"
               className="h-full w-full object-cover"
             />
-          </div>
-
-          <div className="relative h-full w-full">
-            <img
-              src="https://via.placeholder.com/1600x500?text=Product+3"
-              alt="Product 3"
-              className="h-full w-full object-cover"
-            />
           </div> */}
         </Carousel>
       </div>
 
-      {/* Latest Products (right column) */}
-      <div className="col-span-1 flex flex-col justify-center gap-4 h-full">
-        <Typography variant="h4" className="text-gray-900 mb-4">
+      {/* Latest Products (right column on larger screens) */}
+      <div className="flex flex-col justify-center gap-4 h-auto lg:h-full">
+        <Typography variant="h4" className="text-gray-900 mb-4 text-center lg:text-left">
           Latest Products
         </Typography>
 
-        {/* List of 2 products */}
+        {/* List of products */}
         {products.map((product) => (
           <div key={product.id} className="flex items-center gap-4">
             {/* Product Image */}
             <img
               src={product.img}
               alt={product.name}
-              className="w-20 h-20 object-cover rounded-lg"
+              className="w-16 h-16 lg:w-20 lg:h-20 object-cover rounded-lg"
             />
             {/* Product Details */}
             <div>
@@ -79,8 +71,8 @@ const Hero = () => {
           </div>
         ))}
 
-        {/* Optionally, add a "View All" button */}
-        <Button size="lg" className="mt-4 bg-[#F6962E]">
+        {/* "View All" Button */}
+        <Button size="lg" className="mt-4 bg-[#F6962E] w-full lg:w-auto mx-auto lg:mx-0">
           View All Products
         </Button>
       </div>
