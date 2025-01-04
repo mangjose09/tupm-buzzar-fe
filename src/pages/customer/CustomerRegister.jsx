@@ -12,7 +12,7 @@ import {
   Button,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
-import { CustomerRegForm } from "../../components/auth-page/customer/CustomerRegForm";
+import { CustomerRegForm } from "../../components/customer/CustomerRegForm";
 import { useForm } from "react-hook-form";
 import { OtpForm } from "../../components/auth-page/OtpForm";
 
@@ -80,7 +80,7 @@ const CustomerRegister = () => {
             ) : (
               <>
                 <BrandImage />
-                <article className="flex p-0 md:px-20 md:items-center">
+                <article className="flex p-0 md:items-center">
                   <Card className="w-full border  h-[300px] md:h-auto outline outline-[#F8B34B] outline-1">
                     <CardHeader
                       variant="gradient"

@@ -18,8 +18,8 @@ const AuthNavBar = () => {
         <div className="flex flex-row justify-center items-center">
           <Link to="/">
             <img
-              className="h-10 w-auto object-cover p-0"
-              src="/LONG-TEXT-NO-BG.png"
+              className="h-10 w-20 md:w-auto object-contain p-0"
+              src="/BUZZAR_BRAND_NAME_NO_BG.png"
               alt="buzzar branding"
             />
           </Link>
@@ -30,12 +30,14 @@ const AuthNavBar = () => {
             {headerTitle}
           </Typography>
         </div>
-        <IconButton variant="text" className="inline-block md:hidden">
-          <QuestionMarkCircleIcon className="h-6 w-6" />
-        </IconButton>
-        <Button variant="text" size="sm" className="hidden md:inline-block">
-          <span>Need Help?</span>
-        </Button>
+        <Link to="/faqs">
+          <IconButton variant="text" className="inline-block md:hidden">
+            <QuestionMarkCircleIcon className="h-6 w-6" />
+          </IconButton>
+          <Button variant="text" size="sm" className="hidden md:inline-block">
+            <span>Need Help?</span>
+          </Button>
+        </Link>
       </div>
     </Navbar>
   );

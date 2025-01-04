@@ -1,12 +1,14 @@
 import React, { useState, useRef, Fragment } from "react";
 import { Input, Typography, Button } from "@material-tailwind/react";
 import buzzar_api from "../../config/api-config";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const OtpForm = ({ emailSubmitted }) => {
   const inputRefs = useRef([]);
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleChange = (index, value) => {
     const newOtp = [...otp];
@@ -54,6 +56,9 @@ const OtpForm = ({ emailSubmitted }) => {
 
       // Handle success (e.g., navigate to the next page or show a success message)
       console.log("OTP verified successfully", response.data);
+      alert(response.data.message);
+      navigate("/"); // Redirect to /vendor/login
+
       // You can redirect the user or show a success notification
     } catch (error) {
       // Handle error (e.g., incorrect OTP or network issues)

@@ -37,21 +37,21 @@ const FAQPage = () => {
   const faqs = [
     {
       id: 1,
-      question: "Question 1?",
+      question: "What is BUZZAR?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus eu arcu rutrum, interdum nibh id.",
+        "Bridging University Zones for Zero-cost Access to Resources, BUZZAR is an online marketplace exclusive to our university, designed to support student entrepreneurs and campus-based vendors by offering a secure, user-friendly platform for buying and selling products and services within the campus community.",
     },
     {
       id: 2,
-      question: "Question 2?",
+      question: "Who can use BUZZAR?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus eu arcu rutrum, interdum nibh id.",
+        "BUZZAR is open to students, faculty, and authorized campus-based vendors.",
     },
     {
       id: 3,
-      question: "Question 3?",
+      question: "What payment methods are available?",
       answer:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus eu arcu rutrum, interdum nibh id.",
+        "Currently, BUZZAR accepts cash payments only. We understand the desire for more flexible options and are actively working toward including digital payment methods in the near future to enhance convenience and accessibility for all users. We appreciate your patience and understanding as we prioritize creating a secure and user-friendly experience on BUZZAR.",
     },
   ];
 

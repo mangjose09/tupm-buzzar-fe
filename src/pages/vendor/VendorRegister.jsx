@@ -12,7 +12,7 @@ import {
   Button,
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
-import { VendorRegForm } from "../../components/auth-page/vendor/VendorRegForm";
+import { VendorRegForm } from "../../components/vendor/VendorRegForm";
 import { useForm } from "react-hook-form";
 import { OtpForm } from "../../components/auth-page/OtpForm";
 

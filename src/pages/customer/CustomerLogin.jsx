@@ -15,9 +15,11 @@ import {
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import buzzar_api from "../../config/api-config";
+import { useAuth } from "../../context/authContext";
 
 const CustomerLogin = () => {
-  const [loading, setLoading] = useState(false); // State to manage loading
+  // const [loading, setLoading] = useState(false); // State to manage loading
+  const {login, loading} = useAuth();
 
   const {
     register,
@@ -32,32 +34,48 @@ const CustomerLogin = () => {
     },
   });
 
-  const onLoginSubmit = async (data) => {
-    setLoading(true); // Set loading to true
-    try {
-      const response = await buzzar_api.post("/login/", data); // Replace with your actual login endpoint
-      console.log("Login successful:", response.data);
-      // Handle successful login, e.g., redirect or show a success message
-    } catch (error) {
-      console.error("Login failed:", error);
-      if (error.response && error.response.data) {
-        const apiError = error.response.data.detail;
-        alert(`There's an error on the following: ${apiError}`);
-      } else {
-        alert("An unexpected error occurred. Please try again.");
-      }
-      // Handle error, e.g., show an error message
-    } finally {
-      setLoading(false); // Set loading to false after the API call
-    }
-  };
+  // const onLoginSubmit = async (data) => {
+  //   setLoading(true); // Set loading to true
+  //   try {
+  //     const response = await buzzar_api.post("/login/", data); // Replace with your actual login endpoint
+  //     const authTokens = {
+  //       access: response.data.access,
+  //       refresh: response.data.refresh,
+  //     };
 
+  //     const userData = response.data.user;
+
+  //     console.log("Login successful:", userData);
+  //     localStorage.setItem("tokens", JSON.stringify(authTokens));
+
+  //     // Redirect to the customer dashboard
+  //     window.location.href = "/";
+  //   } catch (error) {
+  //     console.error("Login failed:", error);
+
+  //     if (error.response && error.response.data) {
+  //       // Handle the API response error
+  //       const apiError =
+  //         error.response.data.detail || "An error occurred during login.";
+  //       alert(`Error: ${apiError}`);
+  //     } else {
+  //       // Handle unexpected errors
+  //       alert("An unexpected error occurred. Please try again.");
+  //     }
+  //   } finally {
+  //     setLoading(false); // Set loading to false after the API call
+  //   }
+  // };
+
+  const onLoginSubmit = (data) => {
+    login(data, "customer");
+  };
   return (
     <>
       <AuthNavBar />
       <section className="min-h-screen px-6 py-5 md:px-24 md:py-10 grid grid-cols-1 lg:grid-cols-2 gap-x-4">
         <BrandImage />
-        <article className="flex  md:items-center">
+        <article className="flex  items-start md:items-center">
           <Card className="w-full border outline outline-[#F8B34B] outline-1">
             <CardHeader
               variant="gradient"
@@ -92,10 +110,10 @@ const CustomerLogin = () => {
                     label="Password"
                     {...register("password", {
                       required: "Password is required",
-                      minLength: {
-                        value: 8,
-                        message: "Password must be at least 8 characters long",
-                      },
+                      // minLength: {
+                      //   value: 8,
+                      //   message: "Password must be at least 8 characters long",
+                      // },
                       // validate: validateEmail,
                     })}
                     onBlur={() => trigger("password")} // Trigger validation onBlur
@@ -109,7 +127,7 @@ const CustomerLogin = () => {
                 </div>
 
                 <Typography variant="small" className="px-2 underline">
-                  <Link to="/">Forgot your password?</Link>
+                  <Link to="/forgot-password">Forgot your password?</Link>
                 </Typography>
               </CardBody>
               <CardFooter className="pt-0">

@@ -31,7 +31,7 @@ const FeaturedStores = () => {
   ];
 
   return (
-    <section className="py-10">
+    <section>
       <div className="container mx-auto">
         {/* Section Title */}
         <Typography variant="h4" className="text-[#F6911C] text-center mb-8">

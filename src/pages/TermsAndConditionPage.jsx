@@ -12,67 +12,70 @@ const TermsAndConditionPage = () => {
           <Typography variant="h2">Terms and Conditions</Typography>
         </header>
         <section>
-          <Typography variant="h4">1. Introduction</Typography>
+          <Typography variant="h4">1. User Agreement</Typography>
           <Typography variant="paragraph">
-            Welcome to Buzzar. These Terms and Conditions govern your use of our
-            website and the purchase of products from our online store. By
-            accessing our website or placing an order, you agree to be bound by
-            these Terms and Conditions.
+            By using BUZZAR, you agree to comply with these terms. BUZZAR
+            provides a platform for students and campus-based vendors to sell
+            products and services within a university setting, with the aim of
+            creating a secure and supportive environment for transactions.
           </Typography>
         </section>
 
         <section>
-          <Typography variant="h4"> 2. Definitions</Typography>
-          <Typography variant="paragraph" className="mb-4">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent
-            quis enim molestie, egestas augue nec, elementum tortor. Duis
-            posuere ante ac purus imperdiet, sit amet gravida eros ornare. Nam
-            euismod enim dui, ac pellentesque sem iaculis nec. Aliquam erat
-            volutpat. Aenean cursus erat quam, ac interdum libero hendrerit nec.
-            Morbi.
-          </Typography>
-        </section>
-
-        <section>
-          <Typography variant="h4"> 3. Products</Typography>
-          <Typography variant="paragraph" className="mb-4">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent
-            quis enim molestie, egestas augue nec, elementum tortor. Duis
-            posuere ante ac purus imperdiet, sit amet gravida eros ornare. Nam
-            euismod enim dui, ac pellentesque sem iaculis nec. Aliquam erat
-            volutpat. Aenean cursus erat quam, ac interdum libero hendrerit nec.
-            Morbi.
-          </Typography>
-        </section>
-
-        <section>
-          <Typography variant="h4"> 4. Ordering and Payment</Typography>
-          <Typography variant="paragraph" className="mb-4">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent
-            quis enim molestie, egestas augue nec, elementum tortor. Duis
-            posuere ante ac purus imperdiet, sit amet gravida eros ornare. Nam
-            euismod enim dui, ac pellentesque sem iaculis nec. Aliquam erat
-            volutpat. Aenean cursus erat quam, ac interdum libero hendrerit nec.
-            Morbi.
-          </Typography>
+          <Typography variant="h4"> 2. Vendor and Customer Conduct</Typography>
+          <>
+            <ul className="list-disc pl-6 mb-4 space-y-2">
+              <li>
+                Vendors must provide accurate information about their products
+                and services.
+              </li>
+              <li>
+                Customers and vendors are expected to engage professionally and
+                respectfully.
+              </li>
+              <li>
+                Any inappropriate, fraudulent, or prohibited activities will
+                lead to account suspension or termination.
+              </li>
+            </ul>
+          </>
         </section>
 
         <section>
           <Typography variant="h4">
-            5. Changes to Terms and Conditions
+            {" "}
+            3. Product Listings and Transactions
           </Typography>
           <Typography variant="paragraph" className="mb-4">
-            We reserve the right to modify these Terms and Conditions at any
-            time. Changes will be effective immediately upon posting to the
-            website. Your continued use of the website after any changes
-            indicates your acceptance of the new Terms and Conditions.
+            BUZZAR reserves the right to monitor, approve, or reject listings to
+            maintain platform integrity. Both vendors and customers acknowledge
+            that they are responsible for the fulfillment and accuracy of
+            transactions made on BUZZAR.
+          </Typography>
+        </section>
+
+        <section>
+          <Typography variant="h4"> 4. Liability Disclaimer</Typography>
+          <Typography variant="paragraph" className="mb-4">
+            BUZZAR is not liable for any direct or indirect damages resulting
+            from transactions on the platform, including product quality or
+            delivery issues. All transactions are completed at the users’ risk.
+          </Typography>
+        </section>
+
+        <section>
+          <Typography variant="h4">5. Privacy and Data Security</Typography>
+          <Typography variant="paragraph" className="mb-4">
+            All users’ personal information will be protected under our Privacy
+            Policy. User data will only be used to improve user experience,
+            provide services, and maintain security on BUZZAR.
           </Typography>
         </section>
         <section>
           <Typography variant="h4">6. Contact Us </Typography>
           <p className="mb-4">
-            If you have any questions about this Privacy Policy, please contact
-            us at:
+            If you have any questions about this Terms and Condition, please
+            contact us at:
           </p>
           <address className="not-italic">
             <Typography variant="paragraph">

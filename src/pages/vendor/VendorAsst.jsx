@@ -2,10 +2,33 @@ import React from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { Link } from "react-router-dom";
-import { Button, Typography } from "@material-tailwind/react";
+import {
+  Button,
+  Typography,
+  Accordion,
+  AccordionHeader,
+  AccordionBody,
+} from "@material-tailwind/react";
 import { BuildingStorefrontIcon } from "@heroicons/react/24/outline";
 
+function AccordionItem({ open, setOpen, title, content }) {
+  const handleOpen = (value) => {
+    setOpen(open === value ? 0 : value);
+  };
+
+  return (
+    <Accordion open={open === title} className="mt-4">
+      <AccordionHeader onClick={() => handleOpen(title)}>
+        {title}
+      </AccordionHeader>
+      <AccordionBody>{content}</AccordionBody>
+    </Accordion>
+  );
+}
+
 const VendorAsst = () => {
+  const [open, setOpen] = React.useState(0); // Track which accordion is open
+
   return (
     <>
       <Header />
@@ -16,6 +39,7 @@ const VendorAsst = () => {
             Know more about being a vendor.
           </Typography>
         </header>
+
         <section>
           <Typography variant="h5" className="flex items-center">
             <BuildingStorefrontIcon className="w-8 h-8  mr-2 text-[#F8B34B]" />
@@ -24,31 +48,73 @@ const VendorAsst = () => {
           <article className="mt-4 flex flex-col md:flex-row flex-start gap-x-3">
             <div className="md:w-2/3">
               <Typography variant="paragraph" className="mb-4">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-                efficitur justo vel erat rhoncus, vitae tincidunt orci accumsan.
-                Aliquam congue finibus gravida. Fusce a euismod ipsum, id
-                aliquet sem. Nulla vehicula, felis id ornare elementum, justo
-                felis maximus nisl, in porta turpis nisl sed mauris. Sed odio
-                erat, imperdiet eu.
+                Follow these guidelines to become a vendor on BUZZAR.
               </Typography>
-              <Typography variant="paragraph">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
-                efficitur justo vel erat rhoncus, vitae tincidunt orci accumsan.
-                Aliquam congue finibus gravida. Fusce a euismod ipsum, id
-                aliquet sem. Nulla vehicula, felis id ornare elementum, justo
-                felis maximus nisl, in porta turpis nisl sed mauris. Sed odio
-                erat, imperdiet eu.
-              </Typography>
+              <AccordionItem
+                open={open}
+                setOpen={setOpen}
+                title="Eligibility Requirements"
+                content="To register as a vendor, you must be a student or a campus-based business and agree to BUZZAR’s Terms and Conditions."
+              />
+              <AccordionItem
+                open={open}
+                setOpen={setOpen}
+                title="Application Process"
+                content={
+                  <>
+                    <ul className="list-disc pl-6 mt-2 space-y-2">
+                      <li>
+                        Complete the Vendor Application Form: Provide
+                        information about your business, product categories, and
+                        agree to our terms.
+                      </li>
+                      <li>
+                        Review Process: BUZZAR will verify your information and
+                        notify you of your application status.
+                      </li>
+                      <li>
+                        Onboarding: Approved vendors will receive onboarding
+                        information to set up their profile and start listing
+                        products.
+                      </li>
+                    </ul>
+                  </>
+                }
+              />
+              <AccordionItem
+                open={open}
+                setOpen={setOpen}
+                title="Vendor Responsibilities"
+                content={
+                  <>
+                    <ul className="list-disc pl-6 mt-2 space-y-2">
+                      <li>
+                        Maintain Transparency: Ensure product details, pricing,
+                        and availability are accurate.
+                      </li>
+                      <li>
+                        Follow Platform Guidelines: Adhere to BUZZAR’s standards
+                        for quality, professionalism, and user interaction.
+                      </li>
+                      <li>
+                        Provide Customer Support: Vendors are responsible for
+                        addressing customer queries and complaints.
+                      </li>
+                    </ul>
+                  </>
+                }
+              />
             </div>
             <div className="md:w-1/3">
               <img
-                src="https://placehold.co/600x400/png"
+                src="HOW-TO-BE-A-VENDOR.png"
                 alt="Vendor illustration"
-                className="hidden md:inline-block rounded-lg shadow-md h-auto w-auto object-cover"
+                className="hidden md:inline-block rounded-lg  h-auto w-auto object-cover"
               ></img>
             </div>
           </article>
         </section>
+
         <section className="flex flex-col place-items-center">
           <Typography variant="paragraph">
             Interested in becoming a vendor?

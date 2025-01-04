@@ -1,80 +1,120 @@
 import axios from "axios";
 
+// List of unprotected endpoints
+const unprotectedEndpoints = ["/login", "/register", "/verify-otp"]; // Add your unprotected endpoints here
+
 // Create the Axios instance with base URL and credentials
 const buzzar_api = axios.create({
   baseURL: `${import.meta.env.VITE_API_BASE_URL}/api/`,
   withCredentials: true,
 });
 
-// // Function to refresh the JWT token
-// async function refreshToken() {
-//   try {
-//     const storedToken = localStorage.getItem("digi-base");
-//     const token = storedToken ? JSON.parse(storedToken) : null;
+// Function to refresh the JWT token using an async arrow function
+const refreshToken = async () => {
+  const storedToken = localStorage.getItem("tokens");
+  const token = storedToken ? JSON.parse(storedToken) : null;
 
-//     if (!token || !token.refresh) {
-//       throw new Error("No refresh token available");
-//     }
+  // Check for the refresh token
+  if (!token || !token.refresh) {
+    throw new Error("No refresh token available");
+  }
 
-//     const response = await buzzar_api.post("/v2/auth/jwt/refresh/", {
-//       refresh: token.refresh,
-//     });
+  try {
+    const response = await buzzar_api.post(
+      `${import.meta.env.VITE_API_BASE_URL}/auth/jwt/refresh/`,
+      { refresh: token.refresh }
+    );
 
-//     const newToken = {
-//       ...token,
-//       access: response.data.access,
-//       refresh: response.data.refresh,
-//     };
-//     localStorage.setItem("digi-base", JSON.stringify(newToken));
-//   } catch (error) {
-//     console.error("Error fetching refresh token:", error);
-//     throw error; // Handle logout or token expiration if needed
-//   }
-// }
+    const newToken = response.data; // Update based on your API response structure
+    localStorage.setItem("tokens", JSON.stringify(newToken));
 
-// // Request interceptor to add the JWT token to headers
-// buzzar_api.interceptors.request.use(
-//   (config) => {
-//     const storedToken = localStorage.getItem("digi-base");
-//     const token = storedToken ? JSON.parse(storedToken) : null;
+    return newToken.access; // Return the new access token
+  } catch (error) {
+    console.error("Failed to refresh token:", error);
+    // Automatically log out on refresh token failure
+    logout();
+    throw error; // Rethrow the error for handling in the interceptor
+  }
+};
 
-//     if (token && token.access) {
-//       config.headers.Authorization = `JWT ${token.access}`;
-//     }
+// Request interceptor to add the Bearer token except for unprotected endpoints
+buzzar_api.interceptors.request.use(
+  (config) => {
+    const storedToken = localStorage.getItem("tokens");
+    const token = storedToken ? JSON.parse(storedToken) : null;
 
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
+    // Check if the request URL is part of the unprotected endpoints
+    const isUnprotected = unprotectedEndpoints.some((endpoint) =>
+      config.url.includes(endpoint)
+    );
 
-// // Response interceptor to handle token expiration and retry requests
-// buzzar_api.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     const originalRequest = error.config;
+    // If the request is not to an unprotected route, add the Authorization header
+    if (!isUnprotected && token && token.access) {
+      config.headers.Authorization = `Bearer ${token.access}`;
+    }
 
-//     if (
-//       error.response &&
-//       error.response.status === 401 &&
-//       !originalRequest._retry
-//     ) {
-//       originalRequest._retry = true;
-//       try {
-//         await refreshToken();
-//         const storedToken = localStorage.getItem("digi-base");
-//         const token = storedToken ? JSON.parse(storedToken) : null;
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-//         buzzar_api.defaults.headers.common[
-//           "Authorization"
-//         ] = `JWT ${token.access}`;
-//         return buzzar_api(originalRequest);
-//       } catch (refreshError) {
-//         return Promise.reject(refreshError); // Handle token refresh failure
-//       }
-//     }
+// Response interceptor to handle token expiration and retry requests
+buzzar_api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
 
-//     return Promise.reject(error);
-//   }
-// );
+    // Check if the request URL is part of the unprotected endpoints
+    const isUnprotected = unprotectedEndpoints.some((endpoint) =>
+      originalRequest.url.includes(endpoint)
+    );
+
+    // Only handle token refresh if the request is not to an unprotected route
+    if (
+      !isUnprotected &&
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry // Prevent infinite refresh attempts
+    ) {
+      originalRequest._retry = true; // Mark the request as a retry attempt
+
+      // Add a flag to identify the refresh token request
+      if (originalRequest.url.includes("/auth/jwt/refresh/")) {
+        return Promise.reject(error); // Don't retry refresh token requests
+      }
+
+      try {
+        const newAccessToken = await refreshToken(); // Await the refresh token call
+
+        // Set the new token in the header and retry the original request
+        buzzar_api.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${newAccessToken}`;
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return await buzzar_api(originalRequest); // Await the retry of the original request
+      } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
+
+        // Directly log out on refresh token failure
+        logout();
+        return Promise.reject(refreshError); // Reject the promise with the refresh error
+      }
+    }
+
+    // If it's an unprotected route or not a 401 error, return the original error
+    return Promise.reject(error);
+  }
+);
+
+// Function to handle user logout
+const logout = () => {
+  localStorage.removeItem("tokens");
+  localStorage.removeItem("user");
+  localStorage.removeItem("categories");
+  localStorage.removeItem("vendorData");
+  localStorage.removeItem("customerData");
+
+  window.location.href = "/"; // Redirect to login or homepage
+};
 
 export default buzzar_api;

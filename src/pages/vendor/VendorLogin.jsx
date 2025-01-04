@@ -15,9 +15,12 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import buzzar_api from "../../config/api-config";
 import Footer from "../../components/Footer";
+import { useAuth } from "../../context/authContext";
+
 
 const VendorLogin = () => {
-  const [loading, setLoading] = useState(false); // State to manage loading
+  // const [loading, setLoading] = useState(false); // State to manage loading
+  const { login, loading } = useAuth();
 
   const {
     register,
@@ -34,40 +37,24 @@ const VendorLogin = () => {
 
   const CARDINFO = [
     {
-      icon: "https://placehold.co/96x96/png",
+      icon: "/NON-PROFIT.png",
       title: "Non-profit Platform",
-      desc: "This is the card 1",
+      desc: "BUZZAR is a community-driven, non-profit platform dedicated to empowering students and campus-based businesses. No fees are charged for transactions, ensuring full value to vendors and buyers alike.",
     },
     {
-      icon: "https://placehold.co/96x96/png",
+      icon: "/SECURE-AND-SAFETY.png",
       title: "Secure and Safe",
-      desc: "This is the card 2",
+      desc: "With verified vendors and secure transaction protocols, BUZZAR offers a safe shopping experience, prioritizing user security and trust in every transaction.",
     },
     {
-      icon: "https://placehold.co/96x96/png",
+      icon: "/ONE-STOP-SHOP.png",
       title: "One-stop Shop",
-      desc: "This is the card 3",
+      desc: "BUZZAR provides a single, comprehensive platform for all campus-related products and services, simplifying the search and supporting all your academic and entrepreneurial needs in one place.",
     },
   ];
 
-  const onLoginSubmit = async (data) => {
-    setLoading(true); // Set loading to true
-    try {
-      const response = await buzzar_api.post("/login/", data); // Replace with your actual login endpoint
-      console.log("Login successful:", response.data);
-      // Handle successful login, e.g., redirect or show a success message
-    } catch (error) {
-      console.error("Login failed:", error);
-      if (error.response && error.response.data) {
-        const apiError = error.response.data.detail;
-        alert(`There's an error on the following: ${apiError}`);
-      } else {
-        alert("An unexpected error occurred. Please try again.");
-      }
-      // Handle error, e.g., show an error message
-    } finally {
-      setLoading(false); // Set loading to false after the API call
-    }
+  const onLoginSubmit = (data) => {
+    login(data, "vendor");
   };
 
   return (
@@ -111,10 +98,10 @@ const VendorLogin = () => {
                     label="Password"
                     {...register("password", {
                       required: "Password is required",
-                      minLength: {
-                        value: 8,
-                        message: "Password must be at least 8 characters long",
-                      },
+                      // minLength: {
+                      //   value: 8,
+                      //   message: "Password must be at least 8 characters long",
+                      // },
                       // validate: validateEmail,
                     })}
                     onBlur={() => trigger("password")} // Trigger validation onBlur
@@ -128,7 +115,7 @@ const VendorLogin = () => {
                 </div>
 
                 <Typography variant="small" className="px-2 underline">
-                  <Link to="/">Forgot your password?</Link>
+                  <Link to="/forgot-password">Forgot your password?</Link>
                 </Typography>
               </CardBody>
               <CardFooter className="pt-0">
@@ -182,7 +169,7 @@ const VendorLogin = () => {
               <Typography variant="h5" className="text-white">
                 {card.title}
               </Typography>
-              <Typography variant="small" className="text-white text-center">
+              <Typography variant="small" className="text-white text-center ">
                 {card.desc}
               </Typography>
             </div>
