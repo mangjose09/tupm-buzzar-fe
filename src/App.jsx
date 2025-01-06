@@ -18,7 +18,7 @@ import CustomerCheckout from "./pages/customer/CustomerCheckout";
 import CustomerProfile from "./pages/customer/CustomerProfile";
 import CustomerChats from "./pages/customer/CustomerChats";
 import CustomerOrders from "./pages/customer/CustomerOrders";
-import CustomerCart from "./pages/customer/CustomerCarts";
+import CustomerCart from "./pages/customer/CustomerCart";
 
 // Vendor Pages
 import VendorLogin from "./pages/vendor/VendorLogin";
@@ -71,11 +71,14 @@ export default function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
 
           {/* Customer Protected Routes */}
-          <Route element={<PrivateRoute allowedRoles={["customer"]} />}>
+          <Route
+            element={<PrivateRoute allowedRoles={["customer", "vendor"]} />}
+          >
             <Route path="/customer/checkout" element={<CustomerCheckout />} />
             <Route path="/customer/settings" element={<CustomerProfile />} />
             <Route path="/customer/chats" element={<CustomerChats />} />
             <Route path="/customer/orders" element={<CustomerOrders />} />
+            <Route path="/customer/cart" element={<CustomerCart />} />
           </Route>
 
           {/* Vendor Protected Routes */}

@@ -28,6 +28,7 @@ const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const [imageSrc, setImageSrc] = useState("/LONG-TEXT-NO-BG.png");
   const navigate = useNavigate();
   const userName = user?.full_name;
@@ -66,6 +67,21 @@ const Header = () => {
 
     fetchProductData();
   }, []);
+
+  if (userName) {
+    useEffect(() => {
+      const fetchCartItems = async () => {
+        try {
+          const response = await buzzar_api.get(`/carts/`);
+          setCartCount(response.data.length);
+        } catch (error) {
+          console.error("Error cart count data:", error);
+        }
+      };
+
+      fetchCartItems();
+    }, []);
+  }
 
   // Filter products based on search term
   useEffect(() => {
@@ -114,14 +130,19 @@ const Header = () => {
               containerProps={{
                 className: "w-full",
               }}
-              // onBlur={() => setShowSuggestions(false)}
+              onBlur={() => {
+                setTimeout(() => setShowSuggestions(false), 150);
+              }}
             />
             <Button size="sm" className="!absolute right-1 top-1 rounded">
               Search
             </Button>
             {/* Dropdown */}
             {filteredProducts.length > 0 && showSuggestions && (
-              <div className="absolute top-full left-0 w-full bg-white shadow-md z-50 max-h-60 overflow-y-auto mt-2">
+              <div
+                className="absolute top-full left-0 w-full bg-white shadow-md z-50 max-h-60 overflow-y-auto mt-2"
+                onMouseDown={(e) => e.preventDefault()} // Prevent blur on dropdown click
+              >
                 {filteredProducts.map((product) => (
                   <div
                     key={product.id}
@@ -167,11 +188,17 @@ const Header = () => {
           <div className="flex items-center space-x-6">
             {userName ? (
               <>
-                <Badge content="3" overlap="circular" placement="top-end">
-                  <IconButton variant="text">
-                    <ShoppingCartIcon className="h-6 w-6 text-[#F8B34B]" />
-                  </IconButton>
-                </Badge>
+                <Link to="/customer/cart" className="text-black">
+                  <Badge
+                    content={cartCount}
+                    overlap="circular"
+                    placement="top-end"
+                  >
+                    <IconButton variant="text">
+                      <ShoppingCartIcon className="h-6 w-6 text-[#F8B34B]" />
+                    </IconButton>
+                  </Badge>
+                </Link>
                 <Menu>
                   <MenuHandler>
                     <Typography className="hidden lg:flex text-black cursor-pointer">

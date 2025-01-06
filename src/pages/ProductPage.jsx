@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/authContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import buzzar_api from "../config/api-config";
@@ -25,6 +28,7 @@ import {
   PlusIcon,
   MinusIcon,
   HeartIcon,
+  BuildingStorefrontIcon,
 } from "@heroicons/react/24/solid";
 import IMG from "/ESPORTS_JERSEYS.png";
 import IMG2 from "/pastil.jpg";
@@ -44,16 +48,22 @@ const ProductPage = () => {
   const [postRating, setPostRating] = useState(0);
   const [reviewContent, setReviewContent] = useState("");
   const [reviews, setReviews] = useState([]);
+  const [vendorData, setVendorData] = useState(null);
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
-  const vendor = {
-    name: "John's Fresh Produce",
-    description:
-      "We provide the freshest produce directly sourced from local farms.",
-    phone: "(123) 456-7890",
-    email: "contact@freshproduce.com",
-    website: "https://www.freshproduce.com",
-    location: "123 Market Street, Springfield, USA",
+  const ProductPageSkeleton = () => {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background ">
+        <div className="animate-bounce">
+          <img src="/BUZZAR_BRAND_LOGO.png" alt="" className="h-20 w-20" />
+        </div>
+        <p className="mt-4 text-xl font-medium text-muted-foreground">
+          Loading product...
+        </p>
+      </div>
+    );
   };
 
   const toggleSelection = (variantType, optionId, variantPrice) => {
@@ -97,9 +107,34 @@ const ProductPage = () => {
     console.log("Selected quantity:", updatedQuantity);
   };
 
+  const addToCart = () => {
+    // Logic to add the product to the cart goes here
+
+    toast.success("Added to cart", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+      progressStyle: { backgroundColor: "#F6962E" },
+      theme: "light",
+    });
+  };
+
+  // const navigateToVendor = () => {
+  //   if (vendorData) {
+  //     navigate(`/vendor/${vendorData.id}`);
+  //   }
+  // };
+
   useEffect(() => {
     const fetchProductData = async () => {
       try {
+        // Introduce a delay
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
+
         const response = await buzzar_api.get(`/product/${productId}`);
         setProduct(response.data);
         setLoading(false);
@@ -107,6 +142,23 @@ const ProductPage = () => {
         setProductPrice(response.data.price);
         setProductImages(response.data.product_images);
         console.log("Product Data:", response.data);
+
+        // Fetch vendor data
+        if (response.data.vendor) {
+          const getVendorData = async () => {
+            try {
+              const vendorResponse = await buzzar_api.get(
+                `/vendors/${response.data.vendor}`
+              );
+              setVendorData(vendorResponse.data);
+              console.log("Vendor Data:", vendorResponse.data);
+            } catch (error) {
+              console.error("Error fetching vendor data:", error);
+            }
+          };
+
+          getVendorData();
+        }
       } catch (error) {
         console.error("Error fetching product data:", error);
         setLoading(false);
@@ -117,6 +169,7 @@ const ProductPage = () => {
       fetchProductData();
     }
   }, [productId]);
+
   const getReviews = async () => {
     try {
       const response = await buzzar_api.get(`/products/${productId}/reviews/`);
@@ -126,36 +179,61 @@ const ProductPage = () => {
     }
   };
 
+  {
+    /* Similar Products */
+  }
+  useEffect(() => {
+    if (product && product.categories && product.categories.length > 0) {
+      // Parse productList if it's a string
+      const productList = JSON.parse(
+        localStorage.getItem("allProducts") || "[]"
+      );
+
+      if (Array.isArray(productList)) {
+        const productCat = product.categories.map((cat) => cat.category_name);
+
+        const filteredProducts = productList.filter((prod) =>
+          prod.categories.some((cat) => productCat.includes(cat.category_name))
+        );
+
+        setSimilarProducts(filteredProducts.slice(0, 8));
+        console.log("Similar Products:", filteredProducts);
+      }
+    } else {
+      setSimilarProducts([]); // Clear similar products if conditions are not met
+    }
+  }, [product]);
+
   useEffect(() => {
     // Call getReviews when the component mounts
     getReviews();
   }, []);
-  const postReview = async () => {
-    // Validate the rating before proceeding
-    if (postRating <= 0) {
-      alert("Please provide a rating greater than zero."); // You can replace this with your preferred UI feedback
-      return; // Exit the function if validation fails
-    }
+  // const postReview = async () => {
+  //   // Validate the rating before proceeding
+  //   if (postRating <= 0) {
+  //     alert("Please provide a rating greater than zero."); // You can replace this with your preferred UI feedback
+  //     return; // Exit the function if validation fails
+  //   }
 
-    try {
-      const response = await buzzar_api.post(
-        `/products/${productId}/reviews/`,
-        {
-          product: productId,
-          rating: postRating,
-          review_text: reviewContent,
-        }
-      );
-      console.log("Review posted:", response.data);
-      setReviews([response.data, ...reviews]);
-      setReviewContent("");
-      setPostRating(0);
-      // Handle the response, e.g., show a success message
-    } catch (error) {
-      console.error("Error posting review:", error);
-      // Handle the error, e.g., show an error message
-    }
-  };
+  //   try {
+  //     const response = await buzzar_api.post(
+  //       `/products/${productId}/reviews/`,
+  //       {
+  //         product: productId,
+  //         rating: postRating,
+  //         review_text: reviewContent,
+  //       }
+  //     );
+  //     console.log("Review posted:", response.data);
+  //     setReviews([response.data, ...reviews]);
+  //     setReviewContent("");
+  //     setPostRating(0);
+  //     // Handle the response, e.g., show a success message
+  //   } catch (error) {
+  //     console.error("Error posting review:", error);
+  //     // Handle the error, e.g., show an error message
+  //   }
+  // };
 
   const handleCheckout = () => {
     // Check if the product has variants
@@ -223,6 +301,11 @@ const ProductPage = () => {
     );
 
     // Navigate to checkout page
+    // user
+    //   ? navigate("/customer/checkout")
+    //   : navigate("/customer/login", {
+    //       state: { headerTitle: "Customer Login" },
+    //     });
     navigate("/customer/checkout");
   };
 
@@ -232,7 +315,7 @@ const ProductPage = () => {
     <CustomerLayout>
       <Header />
       {loading ? (
-        <div></div>
+        <ProductPageSkeleton />
       ) : (
         <>
           <section className="container mx-auto px-4 py-8">
@@ -364,6 +447,7 @@ const ProductPage = () => {
                     <Button
                       variant="outlined"
                       className="w-full flex items-center justify-center gap-3"
+                      onClick={addToCart}
                     >
                       <HeartIcon className="mr-2 h-4 w-4" /> Add to Cart
                     </Button>
@@ -373,7 +457,34 @@ const ProductPage = () => {
             </div>
           </section>
           {/* Vendor Info Section */}
-           
+
+          <section className="container mx-auto px-4 py-8">
+            <div className="flex items-center gap-6 p-6 border border-gray-200 rounded-xl shadow-md bg-[#F6962E]">
+              {/* Vendor Image */}
+              <img
+                src={vendorData?.store_logo || "/default-vendor.jpg"}
+                alt={vendorData?.store_name || "Vendor Name"}
+                className="w-24 h-24 rounded-full object-cover"
+              />
+
+              {/* Vendor Details */}
+              <div className="flex-1">
+                <h3 className="text-xl text-white font-semibold">
+                  {vendorData?.store_name || "Vendor Name"}
+                </h3>
+              </div>
+
+              {/* Visit Store Button */}
+              <Button
+                variant="filled"
+                className=" flex items-center justify-center gap-3 bg-white text-[#F6962E]"
+              >
+                <BuildingStorefrontIcon className="mr-2 h-4 w-4" />
+                Visit Store
+              </Button>
+            </div>
+          </section>
+
           {/* Reviews Section */}
           <section className="container mx-auto px-4 py-8">
             <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
@@ -425,7 +536,7 @@ const ProductPage = () => {
                   </p>
                 )}
               </CardBody>
-              <CardFooter>
+              {/* <CardFooter>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
                     <span className="font-medium">Rate this product:</span>
@@ -454,11 +565,72 @@ const ProductPage = () => {
                     </Button>
                   </div>
                 </div>
-              </CardFooter>
+              </CardFooter> */}
             </Card>
+          </section>
+          <section className="container mx-auto px-4 py-8">
+            <div className="container px-4 md:px-6">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-8 text-center">
+                Similar Products
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {similarProducts.length > 0 &&
+                  similarProducts.map((product, i) => (
+                    <div
+                      key={i}
+                      className="rounded-lg border bg-white hover:shadow-lg hover:border-2 hover:border-[#F6962E] text-card-foreground shadow-sm flex flex-col"
+                    >
+                      <div className="aspect-square relative">
+                        <img
+                          src={
+                            product.product_images.length > 0
+                              ? product.product_images[0].image_upload
+                              : "/placeholder.jpg"
+                          }
+                          alt={product.product_name}
+                          className="object-cover w-full h-full aspect-square rounded-t-lg"
+                        />
+                      </div>
+                      <div className="p-4 flex flex-col flex-grow">
+                        <h3 className="font-semibold text-lg mb-2 text-center">
+                          {product.product_name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4 truncate text-center">
+                          {product.product_description}
+                        </p>
+                        <div className="flex justify-between items-center mt-auto">
+                          <span className="font-bold">
+                            ₱{parseFloat(product.price).toFixed(2)}
+                          </span>
+                          <Button
+                            onClick={() =>
+                              navigate(`/product?id=${product.id}`)
+                            }
+                            className="bg-[#F6962E] text-white"
+                          >
+                            View
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
           </section>
         </>
       )}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="colored"
+      />
 
       <Footer />
     </CustomerLayout>

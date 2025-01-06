@@ -134,7 +134,7 @@ const Admincustomers = () => {
                     Pending Approval
                   </Typography>
                   <Typography variant="h2" className="text-[#F6962E]">
-                    This is static
+                    {customerCounts.pending}
                   </Typography>
                 </div>
               </CardBody>
@@ -147,7 +147,7 @@ const Admincustomers = () => {
                     Approved Customers
                   </Typography>
                   <Typography variant="h2" className="text-[#F6962E]">
-                    This is static
+                    {customerCounts.approved}
                   </Typography>
                 </div>
               </CardBody>

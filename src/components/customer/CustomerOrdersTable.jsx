@@ -9,7 +9,7 @@ const CustomerOrdersTable = ({ orders }) => {
         <thead>
           <tr className="bg-gray-100">
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">
-              Order ID
+              Product Name
             </th>
             <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">
               Date
@@ -27,10 +27,10 @@ const CustomerOrdersTable = ({ orders }) => {
             orders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm text-gray-700 border-b">
-                  {order.id}
+                  {order.items[0].product_name}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-700 border-b">
-                  {new Date(order.createdAt).toLocaleDateString()}
+                  {new Date(order.created_at).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-700 border-b">
                   {order.order_status}

@@ -3,30 +3,35 @@ import {
   Button,
   Input,
   IconButton,
-  Checkbox,
   Dialog,
   DialogHeader,
   DialogBody,
   DialogFooter,
+  Radio,
+  Typography,
 } from "@material-tailwind/react";
 import {
   ChevronUpIcon,
   ChevronDownIcon,
   PencilIcon,
-  TrashIcon,
   MagnifyingGlassIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { DefaultPagination } from "../ui/pagination";
-import { useNavigate } from "react-router-dom";
+import buzzar_api from "../../config/api-config";
 
 const CustomersTable = ({ customers }) => {
-  const navigate = useNavigate(); // Initialize useNavigate
   const [filteredCustomers, setFilteredCustomers] = useState(customers);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [currentPage, setCurrentPage] = useState(1);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [userId, setUserId] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState({});
   const rowsPerPage = 5;
+
+  const toggleDialog = () => setIsDialogOpen(!isDialogOpen);
 
   useEffect(() => {
     const debounceTimeout = setTimeout(() => {
@@ -34,13 +39,11 @@ const CustomersTable = ({ customers }) => {
       const filtered = customers.filter((customer) => {
         const fullName = [
           customer.first_name,
-          customer.middle_name && customer.middle_name.trim()
-            ? customer.middle_name
-            : "", // Check for non-null and non-empty middle_name
+          customer.middle_name?.trim() || "",
           customer.last_name,
         ]
-          .filter((name) => name) // Filter out any empty strings
-          .join(" "); // Join remaining names with a space
+          .filter(Boolean)
+          .join(" ");
 
         return (
           customer.user_email.toLowerCase().includes(lowercasedTerm) ||
@@ -51,7 +54,7 @@ const CustomersTable = ({ customers }) => {
       setCurrentPage(1);
     }, 300);
 
-    return () => clearTimeout(debounceTimeout); // Cleanup on component unmount or searchTerm change
+    return () => clearTimeout(debounceTimeout);
   }, [searchTerm, customers]);
 
   const sortedCustomers = useMemo(() => {
@@ -59,17 +62,29 @@ const CustomersTable = ({ customers }) => {
       if (sortConfig.key) {
         const aValue =
           sortConfig.key === "full_name"
-            ? `${a.first_name} ${a.middle_name} ${a.last_name}`.toLowerCase()
-            : a[sortConfig.key]?.toLowerCase();
+            ? `${a.first_name} ${a.middle_name || ""} ${
+                a.last_name
+              }`.toLowerCase()
+            : a[sortConfig.key];
         const bValue =
           sortConfig.key === "full_name"
-            ? `${b.first_name} ${b.middle_name} ${b.last_name}`.toLowerCase()
-            : b[sortConfig.key]?.toLowerCase();
+            ? `${b.first_name} ${b.middle_name || ""} ${
+                b.last_name
+              }`.toLowerCase()
+            : b[sortConfig.key];
 
-        if (sortConfig.direction === "asc") {
-          return aValue < bValue ? -1 : 1;
-        } else if (sortConfig.direction === "desc") {
-          return aValue > bValue ? -1 : 1;
+        // Handle sorting for booleans
+        if (sortConfig.key === "is_approved") {
+          return sortConfig.direction === "asc"
+            ? Number(aValue) - Number(bValue)
+            : Number(bValue) - Number(aValue);
+        }
+
+        // Handle sorting for strings
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return sortConfig.direction === "asc"
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
         }
       }
       return 0;
@@ -90,8 +105,10 @@ const CustomersTable = ({ customers }) => {
   };
 
   const handleViewCustomer = (customer) => {
-    console.log("View customer:", customer);
-    navigate(`/admin/customer-profile/${customer.user}`);
+    setSelectedCustomer(customer);
+    setUserId(customer.user); // Set the selected customer's ID
+    setSelectedStatus(customer.is_approved ? "Approved" : "Pending"); // Reflect current status
+    toggleDialog(); // Open the dialog
   };
 
   const totalFilteredCustomers = sortedCustomers.length;
@@ -107,12 +124,39 @@ const CustomersTable = ({ customers }) => {
     { key: "user_email", label: "Email" },
     { key: "full_name", label: "Full Name" },
     { key: "user_dept", label: "Department" },
+    { key: "is_approved", label: "Approval Status" },
     { key: "actions", label: "Actions" },
   ];
 
+  const handleEditStatus = async () => {
+    try {
+      const updatedStatus = selectedStatus === "Approved";
+      console.log(`Update user ${userId} status to:`, updatedStatus);
+
+      await buzzar_api.patch(`/customers/${userId}/`, {
+        is_approved: updatedStatus,
+      });
+
+      // Update the status in the local customers array
+      setFilteredCustomers((prev) =>
+        prev.map((customer) =>
+          customer.customer_id === selectedCustomer.customer_id
+            ? { ...customer, is_approved: updatedStatus }
+            : customer
+        )
+      );
+
+      toggleDialog();
+
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    }
+  };
+
   return (
     <section>
-      <header className=" w-full sm:w-[250px] mb-5 ">
+      <header className="w-full sm:w-[250px] mb-5">
         <Input
           label="Search Email or Full Name"
           value={searchTerm}
@@ -164,14 +208,16 @@ const CustomersTable = ({ customers }) => {
                   <td className="p-2 w-60">
                     {[
                       customer.first_name,
-                      customer.middle_name || "", // If middle_name is null or empty, use an empty string
+                      customer.middle_name || "",
                       customer.last_name,
                     ]
-                      .filter((name) => name) // Filter out any empty or null values
+                      .filter(Boolean)
                       .join(" ") || "No Name"}
-                
                   </td>
                   <td className="p-2 w-40">{customer.user_dept}</td>
+                  <td className="p-2 w-40">
+                    {customer.is_approved ? "Approved" : "Pending"}
+                  </td>
                   <td className="p-2 w-10">
                     <div className="flex items-center justify-center gap-x-2">
                       <IconButton
@@ -207,6 +253,42 @@ const CustomersTable = ({ customers }) => {
           />
         </div>
       )}
+
+      <Dialog open={isDialogOpen} size="sm" handler={toggleDialog}>
+        <DialogHeader>
+          <Typography variant="h4">Edit Account Status</Typography>
+        </DialogHeader>
+        <DialogBody>
+          <Typography>
+            Update the account status of{" "}
+            {`${selectedCustomer.first_name} ${selectedCustomer.last_name}`}
+          </Typography>
+          <div className="mt-4 flex flex-col gap-2">
+            <Radio
+              name="storeStatus"
+              label="Pending"
+              value="Pending"
+              checked={selectedStatus === "Pending"}
+              onChange={() => setSelectedStatus("Pending")}
+            />
+            <Radio
+              name="storeStatus"
+              label="Approved"
+              value="Approved"
+              checked={selectedStatus === "Approved"}
+              onChange={() => setSelectedStatus("Approved")}
+            />
+          </div>
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="text" onClick={toggleDialog} className="mr-2">
+            Cancel
+          </Button>
+          <Button variant="gradient" onClick={handleEditStatus}>
+            Confirm
+          </Button>
+        </DialogFooter>
+      </Dialog>
     </section>
   );
 };

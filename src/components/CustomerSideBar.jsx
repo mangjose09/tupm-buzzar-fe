@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   HomeIcon,
   ShoppingBagIcon,
+  ShoppingCartIcon,
   ClipboardDocumentIcon,
   UserCircleIcon,
   Cog6ToothIcon,
@@ -26,6 +27,11 @@ const MENUS = [
     label: "My Orders",
     path: "/customer/orders",
     icon: ClipboardDocumentIcon,
+  },
+  {
+    label: "Cart",
+    path: "/customer/cart",
+    icon: ShoppingCartIcon,
   },
   {
     label: "Chats",

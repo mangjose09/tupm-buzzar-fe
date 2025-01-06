@@ -10,24 +10,49 @@ import CustomerSideBar from "../../components/CustomerSideBar";
 import CustomerOrdersTable from "../../components/customer/CustomerOrdersTable";
 import { useAuth } from "../../context/authContext";
 import buzzar_api from "../../config/api-config";
+import Header from "../../components/Header";
 
 const CustomerOrders = () => {
   const [statusFilter, setStatusFilter] = useState("All");
   const { user } = useAuth();
   const [ordersList, setOrdersList] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
+        // Fetch orders for the user
         const ordersResponse = await buzzar_api.get(`/orders/user/${user.id}`);
-        setOrdersList(ordersResponse.data);
+        const orders = ordersResponse.data;
+
+        // Fetch all products data from localStorage and parse it
+        const productsResponse = localStorage.getItem("allProducts");
+        const products = productsResponse ? JSON.parse(productsResponse) : [];
+
+        // Map the product names to each order's items
+        const updatedOrders = orders.map((order) => {
+          const updatedItems = order.items.map((item) => {
+            const product = products.find(
+              (product) => product.id === item.product
+            );
+            if (product) {
+              item.product_name = product.product_name; // Add product name to the item
+            }
+            return item;
+          });
+          return { ...order, items: updatedItems };
+        });
+
+        setOrdersList(updatedOrders);
+        console.log(updatedOrders); // Logs the updated orders with product names
       } catch (error) {
         console.error("Error fetching orders: ", error);
       }
     };
 
     fetchOrders();
-  }, [user.id]); // Fetch orders whenever the user ID changes
+  }, [user.id]);
+  // Run when the user ID or products change
 
   // Array of order statuses
   const statuses = ["All", "PENDING", "CONFIRMED", "DELIVERED"];
@@ -44,6 +69,7 @@ const CustomerOrders = () => {
 
   return (
     <>
+      <Header />
       <main className="flex flex-col lg:flex-row min-h-screen">
         <CustomerSideBar />
         <section className="flex flex-col w-full p-6 md:p-10">
@@ -75,7 +101,7 @@ const CustomerOrders = () => {
               <Select
                 label="Select Status"
                 value={statusFilter}
-                onChange={(e) => handleStatusFilter(e)}
+                onChange={(e) => handleStatusFilter(e.target.value)}
               >
                 {statuses.map((status) => (
                   <Option key={status} value={status}>
