@@ -77,10 +77,16 @@ const CustomerChats = () => {
                 `/chat/${room.id}/`
               );
               const messages = messagesResponse.data;
-              const lastMessage =
+              let lastMessage =
                 messages.length > 0
                   ? messages[messages.length - 1].content
                   : "No messages yet";
+
+              // Trim the lastMessage if it's longer than 15 characters
+              if (lastMessage.length > 30) {
+                lastMessage = lastMessage.slice(0, 30) + "...";
+              }
+
               return { ...room, last_message: lastMessage };
             } catch (error) {
               console.error(
@@ -140,7 +146,12 @@ const CustomerChats = () => {
     )?.sender_id;
     if (!senderId) return;
 
-    const socketUrl = `ws://3.0.224.11/${senderId}/chat/${user.id}/?token=${authTokens.access}`;
+    const receiverId = chatRooms.find(
+      (room) => room.id === selectedChatId
+    )?.receiver_id;
+    if (!receiverId) return;
+
+    const socketUrl = `ws://3.0.224.11/${user.id}/chat/${receiverId}/?token=${authTokens.access}`;
     ws.current = new WebSocket(socketUrl);
 
     ws.current.onopen = () => {
@@ -153,19 +164,27 @@ const CustomerChats = () => {
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log("Received message data:", data);
+
       const newMessage = {
         content: data.message,
         sender: data.user,
         sender_name: data.user_full_name,
         sent_at: data.created_at,
       };
+
       setMessages((prevMessages) => [...prevMessages, newMessage]);
 
       // Update the last message in the chatRooms state
       setChatRooms((prevRooms) =>
         prevRooms.map((room) =>
           room.id === selectedChatId
-            ? { ...room, last_message: newMessage.content }
+            ? {
+                ...room,
+                last_message:
+                  newMessage.content.length > 30
+                    ? newMessage.content.slice(0, 30) + "..."
+                    : newMessage.content,
+              }
             : room
         )
       );

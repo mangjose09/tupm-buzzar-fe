@@ -24,7 +24,7 @@ import CustomerSideBar from "../../components/CustomerSideBar";
 import Header from "../../components/Header";
 
 const CustomerProfile = () => {
-  const { user } = useAuth();
+  const { user, customerData } = useAuth();
 
   // State for change password dialog
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -291,7 +291,7 @@ const CustomerProfile = () => {
                   </Typography>
                 </div>
                 <div className="flex items-center">
-                  {user.is_verified ? (
+                  {customerData.is_approved ? (
                     <Chip
                       variant="ghost"
                       color="green"

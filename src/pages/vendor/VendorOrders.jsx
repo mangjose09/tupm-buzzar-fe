@@ -17,17 +17,44 @@ const VendorOrders = () => {
   const [ordersList, setOrdersList] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [orderDetailsList, setOrderDetailsList] = useState([]); // New array for combined data
-  
 
   useEffect(() => {
     const fetchOrdersAndCustomers = async () => {
       try {
+        // Fetch orders and customers
         const ordersResponse = await buzzar_api.get(
           `/orders/vendor/${vendorData.vendor_id}/`
         );
         const customersResponse = await buzzar_api.get(`/customers/`);
 
-        setOrdersList(ordersResponse.data);
+        const ordersWithProof = await Promise.all(
+          ordersResponse.data.map(async (order) => {
+            try {
+              // Fetch proof_of_payment for each order
+              const paymentResponse = await buzzar_api.get(
+                `/orders/payment/${order.id}`
+              );
+              if (paymentResponse.data.length > 0) {
+                order.proof_of_payment =
+                  paymentResponse.data[0].proof_of_payment;
+              } else {
+                order.proof_of_payment = ""; // Set to empty string if no payment found
+              }
+            } catch (error) {
+              console.error(
+                `Error fetching payment for order ${order.id}: `,
+                error
+              );
+              order.proof_of_payment = ""; // Set to empty string on error
+            }
+            return order;
+          })
+        );
+
+        // Set the updated orders with proof_of_payment
+        setOrdersList(ordersWithProof);
+
+        // Set customers data
         setCustomers(customersResponse.data);
       } catch (error) {
         console.error("Error fetching orders or customers: ", error);
@@ -35,7 +62,7 @@ const VendorOrders = () => {
     };
 
     fetchOrdersAndCustomers();
-  }, [vendorData.vendor_id]); // Only fetch data when vendorData changes
+  }, [vendorData.vendor_id]); // Fetch data only when vendorData changes~
 
   useEffect(() => {
     if (ordersList.length > 0 && customers.length > 0) {
@@ -66,6 +93,8 @@ const VendorOrders = () => {
 
   // Array of order statuses
   const statuses = ["All", "PENDING", "CONFIRMED", "DELIVERED"];
+
+  console.log("The order list is ", ordersList);
 
   // Filter orders based on the selected status
   const filteredOrders = orderDetailsList.filter(

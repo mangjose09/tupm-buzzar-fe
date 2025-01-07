@@ -17,7 +17,7 @@ const CustomerOrders = () => {
   const { user } = useAuth();
   const [ordersList, setOrdersList] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
-
+ 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -61,7 +61,6 @@ const CustomerOrders = () => {
   const filteredOrders = ordersList.filter(
     (order) => statusFilter === "All" || order.order_status === statusFilter
   );
-
   // Handle status filter change
   const handleStatusFilter = (status) => {
     setStatusFilter(status);

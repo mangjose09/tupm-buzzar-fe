@@ -213,6 +213,7 @@ const OrdersTable = ({ orders }) => {
     { key: "total_amount", label: "Total Amount" },
     { key: "order_status", label: "Status" },
     { key: "payment_method", label: "Payment Method" },
+    { key: "proof_of_payment", label: "Proof of Payment" },
     { key: "created_at", label: "Order Date" },
     { key: "actions", label: "Actions" },
   ];
@@ -289,8 +290,20 @@ const OrdersTable = ({ orders }) => {
                     {order.order_details.order_status}
                   </td>
                   {/* Status */}
+                  <td className="p-2 w-28">{order.payment_method}</td>
                   <td className="p-2 w-28">
-                    {order.payment_method}
+                    {order.proof_of_payment ? (
+                      <a
+                        href={order.proof_of_payment}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline"
+                      >
+                        {`order ${order.id} proof-of-payment`}
+                      </a>
+                    ) : (
+                      "No Proof"
+                    )}
                   </td>
                   {/* Payment Method */}
                   <td className="p-2 w-40">

@@ -54,6 +54,21 @@ const Header = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    const getAllVendors = () => {
+      buzzar_api
+        .get("/vendors/")
+        .then((response) => {
+          localStorage.setItem("vendorData", JSON.stringify(response.data));
+        })
+        .catch((error) => {
+          console.error("Error fetching vendor data:", error);
+        });
+    };
+
+    getAllVendors();
+  }, []);
+
   // Fetch product data
   useEffect(() => {
     const fetchProductData = async () => {

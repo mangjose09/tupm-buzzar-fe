@@ -99,6 +99,7 @@ export const AuthProvider = ({ children }) => {
         setCustomerData({
           customer_id: customerDetail.customer_id,
           saved_cart_id: customerDetail.saved_cart_id,
+          is_approved: customerDetail.is_approved
         });
 
         navigate("/vendor/dashboard");
@@ -112,6 +113,7 @@ export const AuthProvider = ({ children }) => {
         setCustomerData({
           customer_id: customerDetail.customer_id,
           saved_cart_id: customerDetail.saved_cart_id,
+          is_approved: customerDetail.is_approved
         });
 
         navigate("/");

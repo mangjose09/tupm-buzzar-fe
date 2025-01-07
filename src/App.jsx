@@ -10,6 +10,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsAndConditionPage from "./pages/TermsAndConditionPage";
 import NotFound from "./components/NotFound";
 import ShopPage from "./pages/ShopPage";
+import VendorPage from "./pages/VendorPage";
 // Customer Pages
 import CustomerLogin from "./pages/customer/CustomerLogin";
 import CustomerRegister from "./pages/customer/CustomerRegister";
@@ -46,7 +47,7 @@ export default function App() {
           {/* General Public Routes */}
 
           <Route path="/" element={<LandingPage />} />
-
+          <Route path="/vendor" element={<VendorPage />} />
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/faqs" element={<FAQPage />} />
           <Route path="/vendor-assistance" element={<VendorAsst />} />

@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useState } from "react";
+import { useReducer, useEffect, useState, useRef } from "react";
 import { CreditCard, Truck, Loader2 } from "lucide-react";
 import { useAuth } from "../../context/authContext";
 import Header from "../../components/Header";
@@ -45,13 +45,17 @@ export default function CustomerCheckout() {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [processing, setProcessing] = useState(false);
   const [submitProof, setSubmitProof] = useState(false);
-  const { user } = useAuth();
-
+  const { user, authTokens } = useAuth();
   const [orderDetails, setOrderDetails] = useState(null);
   const [specificOrderDetails, setSpecificOrderDetails] = useState(null);
+  const ws = useRef(null);
+  const vendorData = JSON.parse(localStorage.getItem("checkoutVendor"));
+
+  console.log("Vendor Data:", vendorData.user);
 
   useEffect(() => {
     const storedOrderDetails = localStorage.getItem("orderDetails");
+
     const storedSpecificOrderDetails = localStorage.getItem(
       "specificOrderDetails"
     );
@@ -64,6 +68,34 @@ export default function CustomerCheckout() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!authTokens.access || !vendorData.user) return;
+
+    const socketUrl = `ws://3.0.224.11/${user.id}/chat/${vendorData.user}/?token=${authTokens.access}`;
+    ws.current = new WebSocket(socketUrl);
+
+    ws.current.onopen = () => {
+      console.log(
+        "WebSocket connection established successfully with:",
+        socketUrl
+      );
+    };
+
+    ws.current.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };
+
+    ws.current.onclose = () => {
+      console.log("WebSocket connection closed.");
+    };
+
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, [authTokens.access, vendorData.user]);
+
   const onSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -74,8 +106,10 @@ export default function CustomerCheckout() {
       payment_method: paymentMethod,
     };
 
+    setOrderDetails(updatedOrderDetails);
+
     try {
-      if (paymentMethod === "GCASH") {
+      if (paymentMethod === "Gcash") {
         setProcessing(true);
         setTimeout(() => {
           setProcessing(false);
@@ -84,7 +118,9 @@ export default function CustomerCheckout() {
       } else {
         const response = await buzzar_api.post("/orders/", updatedOrderDetails);
         console.log("Order placed successfully:", response.data);
-
+        handleSendMessage(
+          createVendorMessage(specificOrderDetails, paymentMethod)
+        );
         setProcessing(false);
         setSuccess(true);
       }
@@ -97,9 +133,28 @@ export default function CustomerCheckout() {
     }
   };
 
+  const createVendorMessage = (orderDetails, paymentMethod) => {
+    // Format order items into a readable list
+    const formattedItems = orderDetails.order_items
+      .map(
+        (item, index) =>
+          `${index + 1}. ${item.product_name} (x${item.quantity}) `
+      )
+      .join("\n");
+
+    // Construct the message
+    const message = `Hello! I would like to place an order. Here are my details: Order Items: ${formattedItems}. Total Amount: PHP ${orderDetails.total_amount}. Payment Method: ${paymentMethod}. Please let me know once my order is processed. Thank you!`;
+
+    return message.trim();
+  };
+
   if (!orderDetails || !specificOrderDetails) {
     return <div>Loading...</div>;
   }
+
+  const handleSendMessage = (message) => {
+    ws.current.send(JSON.stringify({ message: message }));
+  };
 
   return (
     <>
@@ -119,7 +174,12 @@ export default function CustomerCheckout() {
         )}
 
         {/* Payment Proof Upload View */}
-        {submitProof && <PaymentProofPage />}
+        {submitProof && (
+          <PaymentProofPage
+            orderDetails={orderDetails}
+            specificOrderDetails={specificOrderDetails}
+          />
+        )}
 
         {/* Success View */}
         {!processing && !submitProof && success && <CustomerCheckoutSuccess />}
@@ -172,9 +232,10 @@ export default function CustomerCheckout() {
                         {/* Cash Button */}
                         <Button
                           variant="outline"
-                          onClick={() => setPaymentMethod("COD")}
-                          className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm border transition-all ${
-                            paymentMethod === "CASH ON DELIVERY"
+                          onClick={() => setPaymentMethod("Cash on Delivery")}
+                          className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-all border 
+                          ${
+                            paymentMethod === "Cash on Delivery"
                               ? "bg-gray-200 text-black border-[#F6962E]"
                               : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
                           }`}
@@ -185,9 +246,10 @@ export default function CustomerCheckout() {
                         {/* GCash Button */}
                         <Button
                           variant="outline"
-                          onClick={() => setPaymentMethod("GCASH")}
-                          className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm border transition-all flex items-center justify-center gap-2 ${
-                            paymentMethod === "GCASH"
+                          onClick={() => setPaymentMethod("Gcash")}
+                          className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-all border flex items-center gap-2 justify-center 
+                          ${
+                            paymentMethod === "Gcash"
                               ? "bg-gray-200 text-black border-[#F6962E]"
                               : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
                           }`}
@@ -198,6 +260,7 @@ export default function CustomerCheckout() {
                             className="h-5 w-auto"
                             aria-hidden="true"
                           />
+                          GCash
                         </Button>
                       </div>
                     </div>

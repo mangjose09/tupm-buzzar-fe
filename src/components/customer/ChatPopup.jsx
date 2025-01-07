@@ -172,17 +172,24 @@ export const ChatPopup = ({ chats, onClose }) => {
   };
 
   return (
-    <div className="fixed bottom-20 right-4 w-100 h-[400px] bg-white shadow-xl rounded-lg flex flex-col overflow-hidden">
-      <div className="flex justify-between items-center bg-black p-3 text-white">
+    <div className="fixed bottom-20 right-4 w-[600px] h-[500px] bg-white shadow-xl rounded-lg flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="flex-shrink-0 flex justify-between items-center bg-black p-3 text-white z-10">
         <span className="font-bold">Chats</span>
         <button onClick={onClose} className="text-lg hover:text-gray-300">
           ✖
         </button>
       </div>
 
+      {/* Main Content */}
       <div className="flex h-full">
-        <aside className="w-1/3 border-r overflow-y-auto h-[calc(30vh-100px)]">
-          {chats.length > 0 ? (
+        {/* Chat List */}
+        <aside className="w-1/4 max-w-sm border-r overflow-y-auto max-h-full">
+          {loading ? (
+            <div className="p-3 text-gray-500 text-center">
+              Loading chats...
+            </div>
+          ) : chats.length > 0 ? (
             chatRooms.map((room) => (
               <div
                 key={room.id}
@@ -202,83 +209,80 @@ export const ChatPopup = ({ chats, onClose }) => {
           )}
         </aside>
 
-        <div className="w-2/3 flex flex-col max-h-80">
-          {connectionError && (
-            <div className="p-2 bg-red-100 text-red-600 text-sm text-center">
-              {connectionError}
-            </div>
-          )}
+        {/* Chat Window */}
+        <div className="w-3/4 max-h-[450px] flex flex-col">
+          {/* Chat Header */}
+          <div className="flex-shrink-0 p-3 border-b bg-white z-10">
+            <h2 className="font-bold">
+              {selectedChatId
+                ? chatRooms.find((room) => room.id === selectedChatId)
+                    ?.receiver_name
+                : "Vendor"}
+            </h2>
+          </div>
 
-          {selectedChatId ? (
-            <>
-              <div className="p-3 border-b">
-                <h2 className="font-bold">
-                  {selectedChatId
-                    ? chatRooms.find((room) => room.id === selectedChatId)
-                        ?.receiver_name
-                    : "Vendor"}
-                </h2>
-              </div>
-              <div className="flex-grow p-3 overflow-y-auto">
-                {messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${
-                      msg.sender === user.id ? "justify-end" : "justify-start"
-                    } mb-4`}
-                  >
-                    <div className="flex flex-col">
-                      <Typography
-                        variant="small"
-                        className={`font-bold ${
-                          msg.sender === user.id ? "text-right" : "text-left"
-                        }`}
-                      >
-                        {msg.sender === user.id ? "You" : msg.sender_name}
-                      </Typography>
-                      <div
-                        className={`p-3 max-w-xs rounded-lg ${
-                          msg.sender === user.id
-                            ? "bg-[#F6962E] text-white"
-                            : "bg-gray-200 text-gray-800"
-                        }`}
-                      >
-                        <p>{msg.content}</p>
-                      </div>
-                      <Typography variant="small" className="text-gray-500">
-                        {formatDate(msg.sent_at)}
-                      </Typography>
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-              <div className="p-3 border-t flex items-center">
-                <input
-                  type="text"
-                  placeholder="Type a message"
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSendMessage(messageInput);
-                  }}
-                  className="flex-grow border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-black"
-                />
-                <button
-                  onClick={() => handleSendMessage(messageInput)}
-                  className="ml-2 bg-black text-white px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+          {/* Messages */}
+          <div className="flex-grow p-3 overflow-y-auto bg-gray-50">
+            {messages.length > 0 ? (
+              messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`flex ${
+                    msg.sender === user.id ? "justify-end" : "justify-start"
+                  } mb-4`}
                 >
-                  Send
-                </button>
+                  <div className="flex flex-col">
+                    <Typography
+                      variant="small"
+                      className={`font-bold ${
+                        msg.sender === user.id ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {msg.sender === user.id ? "You" : msg.sender_name}
+                    </Typography>
+                    <div
+                      className={`p-3 max-w-xs rounded-lg ${
+                        msg.sender === user.id
+                          ? "bg-[#F6962E] text-white"
+                          : "bg-gray-200 text-gray-800"
+                      }`}
+                    >
+                      <p>{msg.content}</p>
+                    </div>
+                    <Typography variant="small" className="text-gray-500">
+                      {formatDate(msg.sent_at)}
+                    </Typography>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-gray-500">
+                No messages in this chat yet.
               </div>
-            </>
-          ) : (
-            <div className="flex-grow flex items-center justify-center">
-              <Typography variant="h6" className="text-gray-500">
-                Select a chat to start messaging
-              </Typography>
-            </div>
-          )}
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Message Input */}
+          {/* Message Input */}
+          <div className="flex-shrink-0 p-3 border-t bg-white flex items-center">
+            <input
+              type="text"
+              placeholder="Type a message"
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSendMessage(messageInput);
+              }}
+              className="flex-grow border rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-black"
+            />
+            <button
+              onClick={() => handleSendMessage(messageInput)}
+              className="ml-2 bg-black text-white px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              Send
+            </button>
+          </div>
         </div>
       </div>
     </div>

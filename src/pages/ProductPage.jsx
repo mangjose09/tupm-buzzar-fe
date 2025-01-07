@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -107,20 +107,72 @@ const ProductPage = () => {
     console.log("Selected quantity:", updatedQuantity);
   };
 
-  const addToCart = () => {
-    // Logic to add the product to the cart goes here
+  const addToCart = async () => {
+    if (!user) {
+      navigate("/customer/login", {
+        state: { headerTitle: "Customer Login" },
+      });
+      return;
+    }
 
-    toast.success("Added to cart", {
-      position: "bottom-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-      progressStyle: { backgroundColor: "#F6962E" },
-      theme: "light",
-    });
+    // Ensure all variants are selected if product has variants
+    // if (product.variants?.length > 0) {
+    //   const allVariantsSelected = product.variants.every((variant) =>
+    //     selectedOptions.some((optionId) =>
+    //       variant.options.some((option) => option.id === optionId)
+    //     )
+    //   );
+
+    //   if (!allVariantsSelected) {
+    //     alert("Please select all variants before proceeding.");
+    //     return;
+    //   }
+    // }
+
+    // Validate quantity
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+      alert("Quantity must be a valid positive integer.");
+      return;
+    }
+
+    // Validate price
+    if (typeof productPrice !== "string" || !parseFloat(productPrice)) {
+      alert("Invalid product price. Please try again.");
+      return;
+    }
+
+    // Prepare payload
+    const cartDetails = {
+      product: parseInt(product.id, 10), // Ensure it's an integer
+      quantity: quantity, // Already validated as an integer
+      price: productPrice, // Send as a string
+      selected_variant_ids: product.variants.map((variant) =>
+        parseInt(variant.id, 10)
+      ), // Ensure array of integers
+    };
+
+    try {
+      const response = await buzzar_api.post("/carts/", cartDetails);
+      toast.success("Added to cart!", {
+        position: "bottom-right",
+        autoClose: 5000,
+        theme: "light",
+      });
+    } catch (error) {
+      console.error(
+        "Error adding to cart:",
+        error.response?.data || error.message
+      );
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to add to cart. Please try again.",
+        {
+          position: "bottom-right",
+          autoClose: 5000,
+          theme: "light",
+        }
+      );
+    }
   };
 
   // const navigateToVendor = () => {
@@ -134,7 +186,9 @@ const ProductPage = () => {
       try {
         // Introduce a delay
         await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
-
+        const allVendors = JSON.parse(
+          localStorage.getItem("vendorData") || "[]"
+        );
         const response = await buzzar_api.get(`/product/${productId}`);
         setProduct(response.data);
         setLoading(false);
@@ -143,22 +197,27 @@ const ProductPage = () => {
         setProductImages(response.data.product_images);
         console.log("Product Data:", response.data);
 
-        // Fetch vendor data
-        if (response.data.vendor) {
-          const getVendorData = async () => {
-            try {
-              const vendorResponse = await buzzar_api.get(
-                `/vendors/${response.data.vendor}`
-              );
-              setVendorData(vendorResponse.data);
-              console.log("Vendor Data:", vendorResponse.data);
-            } catch (error) {
-              console.error("Error fetching vendor data:", error);
-            }
-          };
+        const vendor = response.data.vendor;
+        const vendorData = allVendors.find((v) => v.vendor_id === vendor);
+        setVendorData(vendorData);
+        console.log("Vendor Data:", vendorData);
 
-          getVendorData();
-        }
+        // Fetch vendor data
+        // if (response.data.vendor) {
+        //   const getVendorData = async () => {
+        //     try {
+        //       const vendorResponse = await buzzar_api.get(
+        //         `/vendors/${response.data.vendor}`
+        //       );
+        //       setVendorData(vendorResponse.data);
+        //       console.log("Vendor Data:", vendorResponse.data);
+        //     } catch (error) {
+        //       console.error("Error fetching vendor data:", error);
+        //     }
+        //   };
+
+        //   getVendorData();
+        // }
       } catch (error) {
         console.error("Error fetching product data:", error);
         setLoading(false);
@@ -208,34 +267,40 @@ const ProductPage = () => {
     // Call getReviews when the component mounts
     getReviews();
   }, []);
-  // const postReview = async () => {
-  //   // Validate the rating before proceeding
-  //   if (postRating <= 0) {
-  //     alert("Please provide a rating greater than zero."); // You can replace this with your preferred UI feedback
-  //     return; // Exit the function if validation fails
-  //   }
+  const postReview = async () => {
+    // Validate the rating before proceeding
+    if (postRating <= 0) {
+      alert("Please provide a rating greater than zero."); // You can replace this with your preferred UI feedback
+      return; // Exit the function if validation fails
+    }
 
-  //   try {
-  //     const response = await buzzar_api.post(
-  //       `/products/${productId}/reviews/`,
-  //       {
-  //         product: productId,
-  //         rating: postRating,
-  //         review_text: reviewContent,
-  //       }
-  //     );
-  //     console.log("Review posted:", response.data);
-  //     setReviews([response.data, ...reviews]);
-  //     setReviewContent("");
-  //     setPostRating(0);
-  //     // Handle the response, e.g., show a success message
-  //   } catch (error) {
-  //     console.error("Error posting review:", error);
-  //     // Handle the error, e.g., show an error message
-  //   }
-  // };
+    try {
+      const response = await buzzar_api.post(
+        `/products/${productId}/reviews/`,
+        {
+          product: productId,
+          rating: postRating,
+          review_text: reviewContent,
+        }
+      );
+      console.log("Review posted:", response.data);
+      setReviews([response.data, ...reviews]);
+      setReviewContent("");
+      setPostRating(0);
+      // Handle the response, e.g., show a success message
+    } catch (error) {
+      console.error("Error posting review:", error);
+      // Handle the error, e.g., show an error message
+    }
+  };
 
   const handleCheckout = () => {
+    if (user === null) {
+      navigate("/customer/login", {
+        state: { headerTitle: "Customer Login" },
+      });
+      return;
+    }
     // Check if the product has variants
     if (product.variants && product.variants.length > 0) {
       // Ensure all variants are selected
@@ -295,6 +360,7 @@ const ProductPage = () => {
 
     // Store in localStorage or sessionStorage
     localStorage.setItem("orderDetails", JSON.stringify(orderDetails));
+    localStorage.setItem("checkoutVendor", JSON.stringify(vendorData));
     localStorage.setItem(
       "specificOrderDetails",
       JSON.stringify(specificOrderDetails)
@@ -475,13 +541,15 @@ const ProductPage = () => {
               </div>
 
               {/* Visit Store Button */}
-              <Button
-                variant="filled"
-                className=" flex items-center justify-center gap-3 bg-white text-[#F6962E]"
-              >
-                <BuildingStorefrontIcon className="mr-2 h-4 w-4" />
-                Visit Store
-              </Button>
+              <Link to={`/vendor?id=${vendorData?.vendor_id}`}>
+                <Button
+                  variant="filled"
+                  className=" flex items-center justify-center gap-3 bg-white text-[#F6962E]"
+                >
+                  <BuildingStorefrontIcon className="mr-2 h-4 w-4" />
+                  Visit Store
+                </Button>
+              </Link>
             </div>
           </section>
 
@@ -536,36 +604,38 @@ const ProductPage = () => {
                   </p>
                 )}
               </CardBody>
-              {/* <CardFooter>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <span className="font-medium">Rate this product:</span>
-                    <Rating
-                      value={postRating}
-                      onChange={(value) => setPostRating(value)}
-                    />
+              {user && (
+                <CardFooter>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-4">
+                      <span className="font-medium">Rate this product:</span>
+                      <Rating
+                        value={postRating}
+                        onChange={(value) => setPostRating(value)}
+                      />
+                    </div>
+                    <div className="relative flex w-full">
+                      <Input
+                        type="text"
+                        label="Write your review"
+                        value={reviewContent}
+                        onChange={(e) => setReviewContent(e.target.value)}
+                        className="pr-20"
+                        containerProps={{
+                          className: "w-full",
+                        }}
+                      />
+                      <Button
+                        size="sm"
+                        className="!absolute right-1 top-1 rounded"
+                        onClick={postReview}
+                      >
+                        Submit
+                      </Button>
+                    </div>
                   </div>
-                  <div className="relative flex w-full">
-                    <Input
-                      type="text"
-                      label="Write your review"
-                      value={reviewContent}
-                      onChange={(e) => setReviewContent(e.target.value)}
-                      className="pr-20"
-                      containerProps={{
-                        className: "w-full",
-                      }}
-                    />
-                    <Button
-                      size="sm"
-                      className="!absolute right-1 top-1 rounded"
-                      onClick={postReview}
-                    >
-                      Submit
-                    </Button>
-                  </div>
-                </div>
-              </CardFooter> */}
+                </CardFooter>
+              )}
             </Card>
           </section>
           <section className="container mx-auto px-4 py-8">
